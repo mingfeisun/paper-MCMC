@@ -1,0 +1,66 @@
+\section{Markov Chain Monte Carlo}
+
+\subsection{Average reward case}
+\begin{equation}\label{equ:average_reward}
+d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime
+\end{equation}
+
+Note that the conditional distribution is time reversed, it is difficult to directly estimate the conditional expectation $\mathbb{E}_{(s, a)|s^\prime}\big[\cdot\big]$ for a given $s^\prime$. This is because we usually can observe only a single data point from $d_{\pi_0}(s, a|s^\prime)$ of a fixed $s^\prime$, given that it is difficult to see by chance two different $(s, a)$ pairs transit to the same $s^\prime$.
+
+
+\begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation\eqref{equ:average_reward} holds if and only if, for any function $f$, we have
+\begin{equation}
+\mathbb{E}_{(s,a)\sim d_{\pi}(s,a)}\big[ f(s,a) \big] - \mathbb{E}_{(s, a, s^\prime,a^\prime) \sim d_{\pi}(s,a)}\big[ f(s^\prime,a^\prime) \big] = 0
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$(\rightarrow)$
+\begin{align*}
+&\mathbb{E}_{(s, a)\sim d_{\pi}(s, a)}\big[ f(s, a) \big] - \mathbb{E}_{(s, a, s^\prime, a^\prime) \sim d_{\pi}(s, a)}\big[ f(s^\prime, a^\prime) \big] \\
+= & \sum_{s, a} d_{\pi}(s, a)f(s, a) - \sum_{s,a,s^\prime,a^\prime} d_{\pi}(s, a)T(s^\prime|s, a)\pi(a^\prime|s^\prime) f(s^\prime, a^\prime) \\
+= & \sum_{s^\prime, a^\prime}d_{\pi}(s^\prime, a^\prime)f(s^\prime, a^\prime) - \sum_{s^\prime,a^\prime,s,a} d_{\pi}(s, a)T(s^\prime|s, a)\pi(a^\prime|s^\prime)f(s^\prime, a^\prime) \\
+= & \sum_{s^\prime,a^\prime} f(s^\prime,a^\prime) \big[ d_{\pi}(s^\prime,a^\prime) - \sum_{s,a}T(s^\prime|s,a)\pi(a^\prime|s^\prime) d_{\pi}(s,a) \big] \\
+= & 0
+\end{align*}
+
+$(\leftarrow)$
+If for any function $f$, we have
+$\mathbb{E}_{s\sim d_{\pi}(s)}\big[ f(s) \big] - \mathbb{E}_{(s, a, s^\prime) \sim d_{\pi}(s)}\big[ f(s^\prime) \big] = 0$, then based on the above analysis, we have $d_{\pi}(s^\prime) - \sum_{s}T(s^\prime|s) d_{\pi}(s) =0 $
+\end{proof}
+
+Denote $G(s, a, s^\prime, a^\prime) = \pi(a^\prime|s^\prime) T(s^\prime|s, a)$, we have
+\begin{equation}
+\mathbb{E}_{(s,a)\sim d_{\pi}}\big[ f(s,a) \big] - \mathbb{E}_{(s, a, s^\prime, a^\prime) \sim G, (s,a)\sim d_{\pi}}\big[ f(s^\prime, a^\prime) \big] = 0
+\end{equation}
+
+In order to solve this problem, we can use the min-max optimization, i.e., 
+\begin{equation}
+\min_{G} \max_{f} \mathbb{E}_{(s,a)\sim d_{\pi}}\big[ D(s) \big] - \mathbb{E}_{s^\prime \sim G_a(s, s^\prime), s\sim d_{\pi}}\big[ D(s^\prime) \big]
+\end{equation}
+We can choose both $D$ and $G$ to be neural networks, for which the min-max optimization can be solved numerically by a generative adversarial nets~\cite{goodfellow2014generative}. 
+
+
+\subsection{Discounted reward case}
+\begin{equation}
+\gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) - d_{\pi}(s^\prime, a^\prime) + (1-\gamma)d_0(s^\prime, a^\prime) = 0, \quad s^\prime, a^\prime
+\end{equation}
+
+\begin{lemma}
+\cite{liu2018breaking} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. For any function $D$, we have
+\begin{equation}
+\mathbb{E}_{(s,a,s^\prime)\sim d_{\pi}} \big[ \gamma D(s^\prime) - D(s) \big] + (1-\gamma) \mathbb{E}_{s\sim d_0}\big[ D(s) \big] = 0
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+
+\end{proof}
+
+Similarly, we can formulate the min-max optimization as follows
+\begin{align}
+\min_{G}\max_{D} & \mathbb{E}_{s\sim d_{\pi}} \big[ D(s) \big] - \mathbb{E}_{s^\prime\sim G_a(s, s^\prime), s\sim d_{\pi}} \big[ \gamma D(s^\prime) \big] \nonumber\\
+& - (1-\gamma) \mathbb{E}_{s\sim d_0}\big[ D(s) \big]
+\end{align}
+
+One may view $d_{\pi}$ as the invariant distribution of an induced Markov chain with transition probability of $(1-\gamma) d_{0}(s^\prime) + \gamma T_{\pi}(s^\prime|s)$, which follows $T_{\pi}$ with probability $\gamma$, and restarts from initial distribution $d_{0}(s^\prime)$ with probability $1-\gamma$. 
