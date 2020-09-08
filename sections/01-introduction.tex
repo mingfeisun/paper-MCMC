@@ -6,3 +6,13 @@ Imitation learning:
 
 Challenges: 
 * Sample efficiency: requires a large number of samples from simulations; 
+
+
+
+Markov Chain Monte Carlo (MCMC) operates by generating a sequence of correlated samples that converge in distribution to the target. 
+This convergence is most often guaranteed through detailed balance, a sufficient condition for the chain to have the target equilibrium distribution. 
+In practice, for any proposal distribution, one can ensure detailed balance through a Metropolis-Hastings~\cite{hastings1970monte} accept/reject step.
+
+Despite theoretical guarantees of eventual convergence, in practice convergence and mixing speed depend strongly on choosing a proposal that works well for the task at hand. 
+What's more, it is often more art than science to know when an MCMC chain has converged (``burned-in''), and when the chain has produced a new uncorrelated sample (``mixed'').
+Additionally, the reliance on detailed balance, which assigns equal probability to the forward and reverse transitions, often encourages random-walk behavior and thus slows exploration of the space

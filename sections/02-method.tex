@@ -1,5 +1,40 @@
 \section{Markov Chain Monte Carlo}
 
+\subsection{Background}
+
+Let $p$ be a target distribution, analytically known up to a constant, over a space $\mathcal{X}$. Markov chain Monte Carlo (MCMC) methods aim to provide samples from $p$. To that end, MCMC methods construct a Markov Chain whose stationary distribution is the target distribution $p$. Obtaining samples then corresponds to simulating a Markov Chain, i.e., given an initial distribution $\pi_0$ and a transition kernel $K$, constructing the following sequence of random variables: 
+\begin{equation}
+X_0 \sim \pi_0, \quad X_{t+1} \sim K(\cdot | X_t)
+\end{equation} 
+In order for $p$ to be the stationary distribution of the chain, three conditions must be satisfied: $K$ must be irreducible and aperiodic (these are usually mild technical conditions) and $p$ has to be a fixed point of $K$. This last condition can be expressed as: $p(x^\prime)=\int K(x^\prime|x)p(x)dx $. This condition is most often satisfied by satisfying the stronger \textit{detailed balance} condition, which can be written as: $p(x^\prime)K(x|x^\prime) = p(x)K(x^\prime|x)$. 
+
+Given any proposal distribution $q$, satisfying mild conditions, we can easily construct a transition kernel that respects detailed balance using Metropolic-Hastings accept/reject rules. More formally, starting from $x_0\sim\pi_0$, at each step $t$, we sample $x^\prime\sim q(\cdot|X_t)$, and with probability $A(x^\prime|x_t) = \min(1, \frac{p(x^\prime)q(x_t|x^\prime)}{p(x_t)q(x^\prime|x_t)}$, accept $x^\prime$ as the next sample $x_{t+1}$ in the chain. If we reject $x^\prime$, then we retain the previous state and $x_{t+1}=x_t$. For typical proposals this algorithm has strong asymptotic guarantees. But in practice one must often choose between very low acceptance probabilities and very cautious proposals, both of which lead to slow mixing. For continuous state spaces, Hamiltonian Monte Carlo~\cite{neal2011mcmc} tackles this problem by proposing updates that move far in state space while staying roughly on iso-probability contours of $p$. 
+
+Without loss of generality, we assume $p(x)$ to be defined by an energy function $U(x)$, s.t. $p(x)\propto \exp(-U(x))$, and where the state $x\in \mathbb{R}^n$. HMC extends the state space with an additional momentum vector $v\in\mathbb{R}^n$, where $v$ is distributed independently from $x$, as $p(v)\propto \exp(-\frac{1}{2}v^T v)$ (i.e., identity-covariance Gaussian). From an augmented state $\xi\doteq (x, v)$, HMC produces a proposed state $\xi^\prime = (x^\prime, v^\prime)$ by approximately integrating Hamiltonian dynamics jointly on $x$ and $v$, with $U(x)$ taken to be the potential energy, and $\frac{1}{2}v^T v$ the kinetic energy. Since Hamiltonian dynamics conserve the total energy of a system, their approximate integration moves along approximate iso-probability contours of $p(x, v)=p(x)p(v)$. 
+
+The stationary distribution $\mu_{\gamma}^{\pi}$ can be characterized via:
+
+$(s, a)$ distribution
+\begin{equation}
+\mu(s^\prime, a^\prime) = \underbrace{(1-\gamma) \mu_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) \mu(s, a) ds da}_{(\mathcal{T}\circ \mu) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
+\end{equation}
+
+$s$ distribution
+\begin{equation}
+\mu(s^\prime) = \underbrace{(1-\gamma) \mu_{0}(s^\prime) + \gamma \int P(s^\prime|s, a) \mu(s) \pi(a|s) ds da}_{(\mathcal{T}\circ \mu) (s^\prime)}, \quad \forall s^\prime \in \mathcal{S}. 
+\end{equation}
+
+At first glance, this equation shares a superficial similarity to the Bellman equation, but there is a fundamental difference. The Bellman operator recursively integrates out future $(s^\prime, a^\prime)$ pairs to characterize a current pair $(s, a)$ value, whereas the distribution operator $\mathcal{T}$ defined in above equation operates in the reverse temporal direction. 
+
+Objective:
+\begin{equation}
+\min D_{\phi}\big( \mu_E(s) || \mu(s) \big)
+\end{equation}
+Using KL divergence
+\begin{equation}
+\min D_{\phi}\big( \mu_E(s) || \mu(s) \big) = -\mathbb{E}_{s\sim \mu_E(s)} \log \mu(s)
+\end{equation}
+
 \subsection{Average reward case}
 \begin{equation}\label{equ:average_reward}
 d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime
@@ -8,7 +43,7 @@ d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prim
 Note that the conditional distribution is time reversed, it is difficult to directly estimate the conditional expectation $\mathbb{E}_{(s, a)|s^\prime}\big[\cdot\big]$ for a given $s^\prime$. This is because we usually can observe only a single data point from $d_{\pi_0}(s, a|s^\prime)$ of a fixed $s^\prime$, given that it is difficult to see by chance two different $(s, a)$ pairs transit to the same $s^\prime$.
 
 
-\begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation\eqref{equ:average_reward} holds if and only if, for any function $f$, we have
+\begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation~\ref{equ:average_reward} holds if and only if, for any function $f$, we have
 \begin{equation}
 \mathbb{E}_{(s,a)\sim d_{\pi}(s,a)}\big[ f(s,a) \big] - \mathbb{E}_{(s, a, s^\prime,a^\prime) \sim d_{\pi}(s,a)}\big[ f(s^\prime,a^\prime) \big] = 0
 \end{equation}
