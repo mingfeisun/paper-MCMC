@@ -95,41 +95,39 @@ We introduce several common distribution distances. Specifically, to measure the
     where $\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})$ denotes the set of all joint distributions $\gamma(x, y)$ whose marginals are respectively $\mathbb{P}_{\pi}$ and $\mathbb{P}_{\pi_*}$ .
 \end{itemize}
 
-\paragraph{Empirical forms} We now show how these distribution distances can be translated into another forms, which we call \textit{empirical forms} as we can samples to estimate the values. KL divergence and JS divergence are actually two variants of $f$-divergence. Based on the variational lower bounds of $f$-divergence\citep{nguyen2010estimating}, we have
+\paragraph{Empirical forms} We now show how these distribution distances can be translated into another forms, which we call \textit{empirical forms} as they can estimated via samples. KL divergence and JS divergence are actually two variants of $f$-divergence. Based on the variational lower bounds of $f$-divergence\citep{nguyen2010estimating}, we have
 \begin{equation*}
 D_{f} (\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{\phi\in \Phi} \mathbb{E}_{x\sim\mathbb{P}_\pi}[-f^*(\phi) ] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[\phi(x)],
 \end{equation*}
 where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}$. Similarly for Wasserstein-1 metric, we also have its lower bound~\citep{villani2008optimal}:
 \begin{equation*}
-W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)]
-\end{equation*}
-We now generalize this 
-\begin{equation*}
-\min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{\phi\in\Phi} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big]}_{\text{Empirical form}}
+W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)].
 \end{equation*}
 
-\subsection{Problem formulation}
+\paragraph{Problem formulation} We generalize the idea of using empirical forms to estimate the analytical correspondence, and assume that: for any distribution distances used in the distribution matching, we can always have the empirical forms, and can convert the analytical form to empirical as follows:
 \begin{equation*}
-\min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{\phi\in\Phi} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big]}_{\text{Empirical form}}
+\min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big]}_{\text{Empirical form}},
 \end{equation*}
+where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(s, a)$ is defined according to $f(s, a)$. Now we have the \textbf{general objective function} for the distribution matching in imitation learning:
+\begin{equation}\label{equ:general_objective}
+\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
+\end{equation}
+This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. 
 
-The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
-\begin{align*}
-& \min_{\pi} \big| \eta(\pi_E) - \eta(\pi) \big| \\ 
-& \Rightarrow \min_{\pi} \Big| \mathbb{E}_{(s, a)\sim d_{E}} [r(s, a)] - \mathbb{E}_{(s, a)\sim d_{\pi}} [r(s, a)] \Big|. 
-\end{align*} 
-Since the reward function $r(s, a)$ is unknown to us in imitation learning, directly optimizing the above objective is intractable. We consider a more strict formulation:
-\begin{equation*}
-\min_{\pi} \sup_{r\in\mathcal{R}} \Big| \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big|. 
-\end{equation*} 
-It is easily verified that if for every $r\in \mathcal{R}$ we have $-r \in \mathcal{R}$, then $\sup_{r\in\mathcal{R}} \big[ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi_E}} \big[r(s, a) \big] \big]$ is non-negative, satisfies the triangular inequality, and is symmetric.
-We can then simply remove the absolute operator and formulate the problem as follows:
-\begin{equation*}
-\min_{\pi} \sup_{r\in\mathcal{R}} \Big[ \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big]. 
-\end{equation*} 
-
-
-By the Kantorovich-Rubinstein duality~\citep{villani2008optimal}, we know that $W(d_{\pi}, d_{\pi_E}) = d_{\mathcal{F}}(d_{\pi}, d_{\pi_E})$ when $\mathcal{F}$ is the set of $1$-Lipschitz functions. Furthermore, if $\mathcal{F}$ is the set $K$-Lipschitz, we get $K\cdot W(d_{\pi}, d_{\pi_E}) = d_{\mathcal{F}}(d_{\pi}, d_{\pi_E})$. 
+% The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
+% \begin{align*}
+% & \min_{\pi} \big| \eta(\pi_E) - \eta(\pi) \big| \\ 
+% & \Rightarrow \min_{\pi} \Big| \mathbb{E}_{(s, a)\sim d_{E}} [r(s, a)] - \mathbb{E}_{(s, a)\sim d_{\pi}} [r(s, a)] \Big|. 
+% \end{align*} 
+% Since the reward function $r(s, a)$ is unknown to us in imitation learning, directly optimizing the above objective is intractable. We consider a more strict formulation:
+% \begin{equation*}
+% \min_{\pi} \sup_{r\in\mathcal{R}} \Big| \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big|. 
+% \end{equation*} 
+% It is easily verified that if for every $r\in \mathcal{R}$ we have $-r \in \mathcal{R}$, then $\sup_{r\in\mathcal{R}} \big[ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi_E}} \big[r(s, a) \big] \big]$ is non-negative, satisfies the triangular inequality, and is symmetric.
+% We can then simply remove the absolute operator and formulate the problem as follows:
+% \begin{equation*}
+% \min_{\pi} \sup_{r\in\mathcal{R}} \Big[ \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big]. 
+% \end{equation*} 
 
 
 % Based on Theorem~\ref{theo:policy_gradient} and actor-critic algorithm, we can actually substitute $\Psi(s_t, a_t)$ with $\hat{r}(s_t, a_t) + V(s_{t+1}) - V(s_t)$, where $V(s)$ is defined as $V(s) = \sum_{a}\pi(s, a)\Psi(s, a)$. 
@@ -161,10 +159,7 @@ By the Kantorovich-Rubinstein duality~\citep{villani2008optimal}, we know that $
 
 
 
-$(s, a)$ distribution
-\begin{equation}
-d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
-\end{equation}
-
-
-\red{the next question is how to select $f$ and $\phi$}. In actor-critic algorithms, the critic usually has high variance, to reduce the variance, 
+% $(s, a)$ distribution
+% \begin{equation}
+% d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
+% \end{equation}

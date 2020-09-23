@@ -1,16 +1,29 @@
-\section{Connections }
+\section{Connections to reinforcement learning}
+We now show optimizing Equation~\ref{equ:general_objective} is related to actor-critic algorithms.
 
 \subsection{Actor-Critic optimization}
-We now show that this $\min$-$\max$ optimization problem can be solved by gradient-based method.
-First, the $\sup_{\phi\in\mathcal{F}}$ can be directly optimized by taking the gradient of $\phi(s, a)$ and $f^*(\phi(s, a))$. 
-Second, the $\min_{\pi}$ is with respect to $\pi$, which is parameterized with $\theta$ and included only in the second term. 
+Assume we parametrize $\pi$ and $f$ with $\theta$ and $\omega$ respectively. 
+In order to optimize Equation~\ref{equ:general_objective}, we can iteratively solve the maximization and the minimization. 
+We now show that how this $\min$-$\max$ optimization problem resembles the actor-critic algorithms in reinforcement learning. 
 
-\begin{theorem}\label{theo:policy_gradient}
-For any state occupancy $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $\phi$ and $f$, 
+\paragraph{Maximization} First, the $\sup_{f\in\mathcal{F}}$ can be directly optimized by taking the gradient of $f_{\omega}(s, a)$ and $\tilde{f}_{\omega}(s, a)$. 
 \begin{equation*}
-\nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ r(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
+\nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
+= \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(s, a) \big].
 \end{equation*}
-where $\Psi(s, a)$ is a function defined according to $r(s, a)$. 
+
+\paragraph{Minimization} Second, the $\min_{\pi}$ is with respect to $\pi$, which is parameterized with $\theta$ and only included in the first term.
+\begin{equation*}
+\nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
+= \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] 
+\end{equation*}
+Since $\pi_{\theta}$ is within samples, directly computing the gradient would be intractable. However, recall that in reinforcement learning the objective, $J(\theta)=\mathbb{E}_{s\sim d_{\pi_{\theta}}(s), a\sim\pi_{\theta}}[r(s, a)]$, shares the same form. If we interpret $f_{\omega}(s, a)$ as a reward function, we can then compute the gradient. 
+\begin{theorem}\label{theo:policy_gradient}
+For any state occupancy $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $f_{\omega}$, 
+\begin{equation*}
+\nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f_{\omega}(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi_{\omega}(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
+\end{equation*}
+where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. 
 \end{theorem}
 
 \begin{proof}
@@ -32,27 +45,6 @@ The $\Psi(s, a)$ is defined as
 where $\gamma\in[0, 1]$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks). 
 \end{proof}
 
-It is known that $\Phi(s, a)$ can take multiple form. 
-The choice of $\Phi(s, a)$ is actually a balance between bias and variance. 
-
-Theorem~\ref{theo:policy_gradient} resembles the actor-critic algorithms~\citep{konda2000actor}, where $\nabla_{\theta}\log\pi_{\theta}(s, a)$ is the actor and $\Psi(s, a)$ is the critic. 
-
-\begin{equation}
-\Phi(s, a) = r(s, a) + \gamma \hat{V}(s^\prime) - \hat{V}(s)
-\end{equation}
-
-The $r(s, a)$, $V(s)$ and $\pi$ are parametrized by $\phi$, $\omega$ and $\theta$ respectively. 
-
-\begin{align*}
-& \nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
-= & \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} f_{\phi_{\omega}}(s, a) \big].
-\end{align*}
-
-\begin{align*}
-& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
-= & \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] \\ 
-= & \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
-\end{align*}
 
 \subsection{Deterministic adversarial imitation}
 Assume policy $\pi_{\theta}$ is deterministic
