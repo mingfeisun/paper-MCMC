@@ -79,26 +79,34 @@ In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^
 % \mathbf{d}_{\pi} = (1-\gamma) (\mathbf{I} - \gamma \mathbf{P}_{\pi}^T)^{-1}\mathbf{d}_0.
 % \end{equation*}
 
-\subsection{Empirical forms of distribution measures}
-The $f$-divergence family Divergences, such as the well known Kullback-Leibler (KL) divergence, measure differences between probability distributions. We consider a broad class of such divergences called f-divergences~\citep{liese2006divergences}. Given probability distributions $\mathbb{P}$ and $\mathbb{Q}$ over a finite set of random variables $X$, such that $\mathbb{P}$ is absolutely continuous w.r.t $\mathbb{Q}$, the $f$-divergence is defined as: 
-Let $\mathbb{P}$ and $\mathbb{Q}$ be two probability distributions over a space $\Omega$ such that $\mathbb{P}$ is absolutely continuous with respect to $\mathbb{Q}$. 
-Then, for a convex function $f$ such that $f(1) = 0$, the f-divergence of $\mathbb{P}$ from $\mathbb{Q}$ is defined as
-\begin{equation*}
-D_f (\mathbb{P}, \mathbb{Q}) = \int p(x) f(\frac{q(x)}{p(x)}) dX
-\end{equation*}
-where $f: \mathbb{R}\rightarrow\mathbb{R}$ is a convex and lower semi-continuous function. 
-Different choices of $f$ result in many divergences that play important roles in information theory and statistics, including
+\subsection{Variational forms of distribution distances}
 
-\begin{lemma}
-\citep{nguyen2010estimating} For any class of function $\Phi$ mapping from $\mathcal{X}$ to $\mathbb{R}$, we have the lower bound
+\paragraph{Distribution distances}
+We introduce several common distribution distances and then show how these distribution distances can be translated into their empirical forms. Specifically, to measure the discrepancy between two distributions, we can use \textit{Kullback-Leibler} (KL) divergence, \textit{Jensen-Shannon} (JS) divergence, and \textit{Wasserstein-1} metric. We now define elementary distances and divergences between two distributions $\mathbb{P}_\pi$ and $\mathbb{P}_{\pi_*}$:
+\begin{itemize}
+    \item KL divergence: 
+    \begin{equation*}
+    \text{KL}(\mathbb{P}_\pi || \mathbb{P}_{\pi_*}) = \int \log\Big( \frac{P_\pi(x)}{P_{\pi_*}(x)} \Big) P_{\pi}(x) dx .
+    \end{equation*}
+    
+    \item JS divergence:
+    \begin{equation*}
+    \text{JS}(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \text{KL}(\mathbb{P}_\pi || \mathbb{P}_{\pi_*}) + \text{KL}(\mathbb{P}_{\pi_*} || \mathbb{P}_{\pi}).
+    \end{equation*}
+    
+    \item Wasserstein-1 metric:
+    \begin{equation*}
+    W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \inf_{\gamma\in\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})} \mathbb{E}_{(x, y)\sim\gamma}\big[ ||x-y|| \big], 
+    \end{equation*}
+    where $\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})$ denotes the set of all joint distributions $\gamma(x, y)$ whose marginals are respectively $\mathbb{P}_{\pi}$ and $\mathbb{P}_{\pi_*}$ .
+\end{itemize}
+KL divergence and JS divergence are actually two variants of $f$-divergence. Based on the variational lower bounds of $f$-divergence\citep{nguyen2010estimating}, we have
 \begin{equation*}
-D_{f} (\mathbb{P}, \mathbb{Q}) \geq \sup_{\phi\in \Phi} \int [\phi d\mathbb{Q} - f^*(\phi) d\mathbb{P} ] . 
+D_{f} (\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{\phi\in \Phi} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] - \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[f(x)] \int [\phi d\mathbb{P}_{\pi_*} - f^*(\phi) d\mathbb{P}_{\pi} ], 
 \end{equation*}
-Equality holds if and only if the subdifferential $\partial f(q_0/p_0)$ contains an element of $\Phi$. 
-\end{lemma}
-The function $f^*$ is the \textit{convex conjugate} associated with $f$, defined as:
+where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}$. Similarly for Wasserstein-1 metric, we also have its lower bound~\citep{villani2008optimal}:
 \begin{equation*}
-f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}. 
+W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] - \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[f(x)]
 \end{equation*}
 
 \begin{lemma}
