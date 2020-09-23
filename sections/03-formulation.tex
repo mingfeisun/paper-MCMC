@@ -1,0 +1,183 @@
+\section{Distribution matching formulation}
+
+\subsection{Background}
+An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , \rho_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $\rho_0:\mathcal{S} \rightarrow\mathcal{A}$ is the initial state distribution, and $\gamma\in(0, 1]$ is a discount factor. 
+A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$. Let $\tau_E$ denote a trajectory sampled from expert policy $\pi_E$: $\tau_E = \big[ (s_0, a_0), (s_1, a_1), ..., (s_n, a_n) \big]$. 
+
+In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\leftarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
+\begin{equation}\label{equ:average_reward}
+d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime
+\end{equation}
+
+In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
+% $(s, a)$ distribution
+% \begin{equation}
+% d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
+% \end{equation}
+\begin{equation}
+\gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) - d_{\pi}(s^\prime, a^\prime) + (1-\gamma)d_0(s^\prime, a^\prime) = 0, \quad s^\prime, a^\prime
+\end{equation}
+
+
+% \begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation~\ref{equ:average_reward} holds if and only if, for any function $f$, we have
+% \begin{equation}
+% \mathbb{E}_{(s,a)\sim d_{\pi}(s,a)}\big[ f(s,a) \big] - \mathbb{E}_{(s, a, s^\prime,a^\prime) \sim d_{\pi}(s,a)}\big[ f(s^\prime,a^\prime) \big] = 0
+% \end{equation}
+% \end{lemma}
+% 
+% \begin{proof}
+% $(\rightarrow)$
+% \begin{align*}
+% &\mathbb{E}_{(s, a)\sim d_{\pi}(s, a)}\big[ f(s, a) \big] - \mathbb{E}_{(s, a, s^\prime, a^\prime) \sim d_{\pi}(s, a)}\big[ f(s^\prime, a^\prime) \big] \\
+% = & \sum_{s, a} d_{\pi}(s, a)f(s, a) - \sum_{s,a,s^\prime,a^\prime} d_{\pi}(s, a)T(s^\prime|s, a)\pi(a^\prime|s^\prime) f(s^\prime, a^\prime) \\
+% = & \sum_{s^\prime, a^\prime}d_{\pi}(s^\prime, a^\prime)f(s^\prime, a^\prime) - \sum_{s^\prime,a^\prime,s,a} d_{\pi}(s, a)T(s^\prime|s, a)\pi(a^\prime|s^\prime)f(s^\prime, a^\prime) \\
+% = & \sum_{s^\prime,a^\prime} f(s^\prime,a^\prime) \big[ d_{\pi}(s^\prime,a^\prime) - \sum_{s,a}T(s^\prime|s,a)\pi(a^\prime|s^\prime) d_{\pi}(s,a) \big] \\
+% = & 0
+% \end{align*}
+% 
+% $(\leftarrow)$
+% If for any function $f$, we have
+% $\mathbb{E}_{s\sim d_{\pi}(s)}\big[ f(s) \big] - \mathbb{E}_{(s, a, s^\prime) \sim d_{\pi}(s)}\big[ f(s^\prime) \big] = 0$, then based on the above analysis, we have $d_{\pi}(s^\prime) - \sum_{s}T(s^\prime|s) d_{\pi}(s) =0 $
+% \end{proof}
+
+% Denote $G(s, a, s^\prime, a^\prime) = \pi(a^\prime|s^\prime) T(s^\prime|s, a)$, we have
+% \begin{equation}
+% \mathbb{E}_{(s,a)\sim d_{\pi}}\big[ f(s,a) \big] - \mathbb{E}_{(s, a, s^\prime, a^\prime) \sim G, (s,a)\sim d_{\pi}}\big[ f(s^\prime, a^\prime) \big] = 0
+% \end{equation}
+
+% In order to solve this problem, we can use the min-max optimization, i.e., 
+% \begin{equation}
+% \min_{G} \max_{f} \mathbb{E}_{(s,a)\sim d_{\pi}}\big[ D(s) \big] - \mathbb{E}_{s^\prime \sim G_a(s, s^\prime), s\sim d_{\pi}}\big[ D(s^\prime) \big]
+% \end{equation}
+% We can choose both $D$ and $G$ to be neural networks, for which the min-max optimization can be solved numerically by a generative adversarial nets~\citep{goodfellow2014generative}. 
+
+
+% \begin{lemma}
+% \citep{liu2018breaking} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. For any function $D$, we have
+% \begin{equation}
+% \mathbb{E}_{(s,a,s^\prime)\sim d_{\pi}} \big[ \gamma D(s^\prime) - D(s) \big] + (1-\gamma) \mathbb{E}_{s\sim d_0}\big[ D(s) \big] = 0
+% \end{equation}
+% \end{lemma}
+% 
+% \begin{proof}
+% 
+% \end{proof}
+
+% Similarly, we can formulate the min-max optimization as follows
+% \begin{align}
+% \min_{G}\max_{D} & \mathbb{E}_{s\sim d_{\pi}} \big[ D(s) \big] - \mathbb{E}_{s^\prime\sim G_a(s, s^\prime), s\sim d_{\pi}} \big[ \gamma D(s^\prime) \big] \nonumber\\
+% & - (1-\gamma) \mathbb{E}_{s\sim d_0}\big[ D(s) \big]
+% \end{align}
+
+% One may view $d_{\pi}$ as the invariant distribution of an induced Markov chain with transition probability of $(1-\gamma) d_{0}(s^\prime) + \gamma T_{\pi}(s^\prime|s)$, which follows $T_{\pi}$ with probability $\gamma$, and restarts from initial distribution $d_{0}(s^\prime)$ with probability $1-\gamma$. 
+
+% \begin{equation*}
+% \mathbf{d}_{\pi} = (1-\gamma) \mathbf{d}_0 + \gamma \mathbf{P}_{\pi}^T \mathbf{d}_{\pi}.
+% \end{equation*}
+% 
+% \begin{equation*}
+% \mathbf{d}_{\pi} = (1-\gamma) (\mathbf{I} - \gamma \mathbf{P}_{\pi}^T)^{-1}\mathbf{d}_0.
+% \end{equation*}
+
+\subsection{Empirical forms of distribution measures}
+The $f$-divergence family Divergences, such as the well known Kullback-Leibler (KL) divergence, measure differences between probability distributions. We consider a broad class of such divergences called f-divergences~\citep{liese2006divergences}. Given probability distributions $\mathbb{P}$ and $\mathbb{Q}$ over a finite set of random variables $X$, such that $\mathbb{P}$ is absolutely continuous w.r.t $\mathbb{Q}$, the $f$-divergence is defined as: 
+Let $\mathbb{P}$ and $\mathbb{Q}$ be two probability distributions over a space $\Omega$ such that $\mathbb{P}$ is absolutely continuous with respect to $\mathbb{Q}$. 
+Then, for a convex function $f$ such that $f(1) = 0$, the f-divergence of $\mathbb{P}$ from $\mathbb{Q}$ is defined as
+\begin{equation*}
+D_f (\mathbb{P}, \mathbb{Q}) = \int p(x) f(\frac{q(x)}{p(x)}) dX
+\end{equation*}
+where $f: \mathbb{R}\rightarrow\mathbb{R}$ is a convex and lower semi-continuous function. 
+Different choices of $f$ result in many divergences that play important roles in information theory and statistics, including
+
+\begin{lemma}
+\citep{nguyen2010estimating} For any class of function $\Phi$ mapping from $\mathcal{X}$ to $\mathbb{R}$, we have the lower bound
+\begin{equation*}
+D_{f} (\mathbb{P}, \mathbb{Q}) \geq \sup_{\phi\in \Phi} \int [\phi d\mathbb{Q} - f^*(\phi) d\mathbb{P} ] . 
+\end{equation*}
+Equality holds if and only if the subdifferential $\partial f(q_0/p_0)$ contains an element of $\Phi$. 
+\end{lemma}
+The function $f^*$ is the \textit{convex conjugate} associated with $f$, defined as:
+\begin{equation*}
+f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}. 
+\end{equation*}
+
+\begin{lemma}
+\citep{villani2008optimal} Kantorovich–Rubinstein duality
+\begin{equation*}
+D_{f} (\mathbb{P}, \mathbb{Q}) \geq \sup_{\phi\in \Phi} \int [\phi d\mathbb{Q} - f^*(\phi) d\mathbb{P} ] . 
+\end{equation*}
+Equality holds if and only if the subdifferential $\partial f(q_0/p_0)$ contains an element of $\Phi$. 
+\end{lemma}
+
+By taking the variation of the lower bound w.r.t $\phi$, we find that under mild conditions $f$, the bound is tight for 
+\begin{equation*}
+\phi^*(x) = f^\prime \Big( \frac{p(x)}{q(x)} \Big)
+\end{equation*}
+where $f^\prime$ denotes the first order derivative of $f$~\citep{nowozin2016f}. This condition can serve as a guiding principle for choosing $f$ and designing the class of function $\phi^*$. 
+
+Then we have 
+\begin{align*}
+D_f (\mathbb{P}, \mathbb{Q}) &= \sup_{\phi\in \Phi} \quad \int [\phi d\mathbb{Q} - f^*(\phi)d\mathbb{P}] \\
+&= \sup_{\phi\in\Phi} \quad \mathbb{E}_{x\sim q(x)} \big[ \phi(x) \big] - \mathbb{E}_{x\sim p(x)} \big[ f^*(\phi(x)) \big].
+\end{align*}
+
+\subsection{Problem formulation}
+\begin{equation*}
+\min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{\phi\in\Phi} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big]}_{\text{Empirical form}}
+\end{equation*}
+
+The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
+\begin{align*}
+& \min_{\pi} \big| \eta(\pi_E) - \eta(\pi) \big| \\ 
+& \Rightarrow \min_{\pi} \Big| \mathbb{E}_{(s, a)\sim d_{E}} [r(s, a)] - \mathbb{E}_{(s, a)\sim d_{\pi}} [r(s, a)] \Big|. 
+\end{align*} 
+Since the reward function $r(s, a)$ is unknown to us in imitation learning, directly optimizing the above objective is intractable. We consider a more strict formulation:
+\begin{equation*}
+\min_{\pi} \sup_{r\in\mathcal{R}} \Big| \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big|. 
+\end{equation*} 
+It is easily verified that if for every $r\in \mathcal{R}$ we have $-r \in \mathcal{R}$, then $\sup_{r\in\mathcal{R}} \big[ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi_E}} \big[r(s, a) \big] \big]$ is non-negative, satisfies the triangular inequality, and is symmetric.
+We can then simply remove the absolute operator and formulate the problem as follows:
+\begin{equation*}
+\min_{\pi} \sup_{r\in\mathcal{R}} \Big[ \mathbb{E}_{(s, a)\sim d_{E}} \big[r(s, a)\big] - \mathbb{E}_{(s, a)\sim d_{\pi}} \big[r(s, a) \big] \Big]. 
+\end{equation*} 
+
+
+By the Kantorovich-Rubinstein duality~\citep{villani2008optimal}, we know that $W(d_{\pi}, d_{\pi_E}) = d_{\mathcal{F}}(d_{\pi}, d_{\pi_E})$ when $\mathcal{F}$ is the set of $1$-Lipschitz functions. Furthermore, if $\mathcal{F}$ is the set $K$-Lipschitz, we get $K\cdot W(d_{\pi}, d_{\pi_E}) = d_{\mathcal{F}}(d_{\pi}, d_{\pi_E})$. 
+
+
+% Based on Theorem~\ref{theo:policy_gradient} and actor-critic algorithm, we can actually substitute $\Psi(s_t, a_t)$ with $\hat{r}(s_t, a_t) + V(s_{t+1}) - V(s_t)$, where $V(s)$ is defined as $V(s) = \sum_{a}\pi(s, a)\Psi(s, a)$. 
+
+
+% \begin{equation*}
+% \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}[\phi^*(f(s, a))] =  \mathbb{E}_{(s, a)\sim d_{*}}\big[ \omega(s, a) \cdot \phi^*(f(s, a)) \big]
+% \end{equation*}
+% \begin{equation*}
+% \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}[\nabla_\theta\log \pi_{\theta}(s, a) \cdot \Psi(s, a)] =  \mathbb{E}_{(s, a)\sim d_{*}}\big[ \omega(s, a) \cdot \nabla_\theta\log \pi_{\theta}(s, a) \cdot \Psi(s, a) \big]
+% \end{equation*}
+% where $\omega(s, a)$ is defined as $\omega(s, a) = \frac{d_{\pi_{\theta}}(s, a)}{d_*(s, a)}$, also called \textit{density ratio} in off-policy policy evaluation~\citep{}. 
+
+
+% Problem formulation:
+% \begin{align}
+% \min_{\pi} \quad & D_{f} \big(d_*(s, a) || d_{\pi}(s, a) \big) \\
+% \text{subject to} \quad & d_{\pi}(s, a) = (\mathcal{T} \circ d_{\pi})(s, a) \quad \forall s\in \mathcal{S}, a\in \mathcal{A}. \nonumber
+% \end{align}
+
+
+% Substitute the objective and plug in $x$ as $(s, a)$:
+% \begin{align*}
+% \min_{\pi} \sup_{\phi\in\Phi} \quad & \mathbb{E}_{(s, a)\sim d_\pi} \big[ \phi(s, a) \big] - \mathbb{E}_{(s, a)\sim d_*} \big[ f^*(\phi(s, a)) \big], \\
+% \text{subject to} \quad & d_{\pi}(s, a) = (\mathcal{T} \circ d_{\pi})(s, a) \quad \forall s\in \mathcal{S}, a\in \mathcal{A}. \nonumber
+% \end{align*}
+
+
+
+
+
+$(s, a)$ distribution
+\begin{equation}
+d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
+\end{equation}
+
+
+\red{the next question is how to select $f$ and $\phi$}. In actor-critic algorithms, the critic usually has high variance, to reduce the variance, 

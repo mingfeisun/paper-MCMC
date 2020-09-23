@@ -1,15 +1,17 @@
 
 \documentclass{article} % For LaTeX2e
-\usepackage{iclr2021_conference,times}
+\usepackage{iclr2021,times}
 
 % Optional math commands from https://github.com/goodfeli/dlbook_notation.
 \input{math_commands.tex}
 
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 
-
-\title{Generative Imitation via Markov Chain Monte Carlo}
+\title{Deterministic Adversarial Imitation Learning}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
@@ -51,6 +53,8 @@ Address \\
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
 
 %\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 \begin{document}
@@ -61,11 +65,14 @@ Address \\
 \input{sections/00-abstract}
 
 \input{sections/01-introduction}
-\input{sections/02-method}
+\input{sections/03-formulation}
+\input{sections/04-connections}
+\input{sections/05-experiment}
+\input{sections/02-related-work}
+\input{sections/06-conclusion}
 
-
-\bibliography{iclr2021_conference}
-\bibliographystyle{iclr2021_conference}
+\bibliography{bib}
+\bibliographystyle{bib}
 
 \appendix
 \section{Appendix}

@@ -1,0 +1,92 @@
+\section{Connections }
+
+\subsection{Actor-Critic optimization}
+We now show that this $\min$-$\max$ optimization problem can be solved by gradient-based method.
+First, the $\sup_{\phi\in\mathcal{F}}$ can be directly optimized by taking the gradient of $\phi(s, a)$ and $f^*(\phi(s, a))$. 
+Second, the $\min_{\pi}$ is with respect to $\pi$, which is parameterized with $\theta$ and included only in the second term. 
+
+\begin{theorem}\label{theo:policy_gradient}
+For any state occupancy $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $\phi$ and $f$, 
+\begin{equation*}
+\nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ r(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
+\end{equation*}
+where $\Psi(s, a)$ is a function defined according to $r(s, a)$. 
+\end{theorem}
+
+\begin{proof}
+Note that $\phi(s, a)$ is also a function independent of $\pi$. 
+This proof is similar to the proof of policy gradient theorem in terms that we view $\phi(s, a)$ as the reward function, i.e., $\hat{r}(s, a) := \phi(s, a)$. 
+
+In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\leftarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
+The $\Psi(s, a)$ is defined as 
+\begin{equation*}
+\Psi(s, a) = \sum_{t=1}^{\infty} \mathbb{E}[\phi(s_t, a_t) - \rho(\pi) | s_0 = s, a_0 =a, \pi], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
+\end{equation*}
+where $\rho(\pi) = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ \phi(s, a) \big] $. 
+
+In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
+The $\Psi(s, a)$ is defined as 
+\begin{equation*}
+\Psi(s, a) = \mathbb{E}\big[ \sum_{k=1}^{\infty} \gamma^{k-1} \phi(s_{t+k}, a_{t+k}) | s_t = s, a_t =a, \pi \big], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
+\end{equation*}
+where $\gamma\in[0, 1]$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks). 
+\end{proof}
+
+It is known that $\Phi(s, a)$ can take multiple form. 
+The choice of $\Phi(s, a)$ is actually a balance between bias and variance. 
+
+Theorem~\ref{theo:policy_gradient} resembles the actor-critic algorithms~\citep{konda2000actor}, where $\nabla_{\theta}\log\pi_{\theta}(s, a)$ is the actor and $\Psi(s, a)$ is the critic. 
+
+\begin{equation}
+\Phi(s, a) = r(s, a) + \gamma \hat{V}(s^\prime) - \hat{V}(s)
+\end{equation}
+
+The $r(s, a)$, $V(s)$ and $\pi$ are parametrized by $\phi$, $\omega$ and $\theta$ respectively. 
+
+\begin{align*}
+& \nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
+= & \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} f_{\phi_{\omega}}(s, a) \big].
+\end{align*}
+
+\begin{align*}
+& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
+= & \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] \\ 
+= & \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
+\end{align*}
+
+\subsection{Deterministic adversarial imitation}
+Assume policy $\pi_{\theta}$ is deterministic
+
+\begin{align*}
+& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
+= & \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] \\ 
+= & \mathbb{E}_{s\sim d_{\pi_{\theta}}(s)} \big[  \nabla_\theta \pi_{\theta}(s, a) \cdot \nabla_a \Psi(s, a)\big|_{a=\pi_{\theta}(s)}\big], 
+\end{align*}
+
+The algorithm runs as follows:
+
+\begin{algorithm}
+\caption{Deterministic Adversarial Imitation Learning}
+\begin{algorithmic}[1] %enables line numbers
+\STATE Initialize critic network $Q_{\omega_1}$, $Q_{\omega_2}$, actor network $\pi_{\theta}$ and reward network $r_{\phi}$ wth random parameters $\omega_1$, $\omega_2$, $\theta$ and $\phi$
+\STATE Initialize target networks $\omega_1^\prime\rightarrow\omega_1$, $\omega_2^\prime\rightarrow\omega_2$, $\theta^\prime\rightarrow\theta$,
+\STATE Initialize replay buffer $\mathcal{B}$
+\STATE Initialize demonstration set $\mathcal{D}$
+\FOR{$t=1$ to $T$}
+\STATE Select action with exploration noise $a\sim\pi_{\theta} + \epsilon$, $\epsilon\sim \mathcal{N}(0, \sigma)$ and observe new state $s^\prime$
+\STATE Store transition tuple $(s, a, s^\prime)$ in $\mathcal{B}$
+\STATE Sample mini-batch of $N$ transitions $(s, a, s^\prime)$ from $\mathcal{B}$
+\IF{$t$ mod $d_r$}
+\STATE Sample mini-batch of $N$ transitions $(s, a, s^\prime)$ from $\mathcal{D}$
+\STATE Optimize $r_{\phi}$ based on the objective
+\ENDIF
+\STATE $\tilde{a} \leftarrow \pi_{\theta^\prime}+\epsilon$, $\epsilon\sim \text{clip}(\mathcal{N}(0, \tilde{\sigma}, -c, c))$
+\STATE $y\rightarrow r_{\phi}+\gamma \min_{i=1, 2}Q_{\phi_i}^\prime(s^\prime, \tilde{a})$
+\STATE Update critics $\omega_i\leftarrow \arg\min_{\omega_i} N^{-1}\sum(y - Q_{\omega_i}(s, a))^2$
+\IF{$t$ mod $d_\pi$}
+\STATE Update $\theta$ by the deterministic policy gradient
+\STATE Update target networks: $\omega_i^\prime\leftarrow \tau \omega_i + (1-\tau)\omega_i^\prime$, $\theta^\prime \leftarrow \tau \theta + (1-\tau)\theta $
+\ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
