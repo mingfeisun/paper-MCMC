@@ -11,6 +11,7 @@ We now show that how this $\min$-$\max$ optimization problem resembles the actor
 \nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
 = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(s, a) \big].
 \end{equation*}
+\vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
 
 \paragraph{Minimization} Second, the $\min_{\pi}$ is with respect to $\pi$, which is parameterized with $\theta$ and only included in the first term.
 \begin{equation*}
@@ -19,12 +20,13 @@ We now show that how this $\min$-$\max$ optimization problem resembles the actor
 \end{equation*}
 Since $\pi_{\theta}$ is within samples, directly computing the gradient would be intractable. However, recall that in reinforcement learning the objective, $J(\theta)=\mathbb{E}_{s\sim d_{\pi_{\theta}}(s), a\sim\pi_{\theta}}[r(s, a)]$, shares the same form. If we interpret $f_{\omega}(s, a)$ as a reward function, we can then compute the gradient. 
 \begin{theorem}\label{theo:policy_gradient}
-For any state occupancy $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $f_{\omega}$, 
+\vit{I do not think you named $d_{\pi}$ state occupancy before. Do this when you introduce it as well.} For any state occupancy $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $f_{\omega}$, 
 \begin{equation*}
 \nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f_{\omega}(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi_{\omega}(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
 \end{equation*}
 where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. 
 \end{theorem}
+\vit{You often use 'A is defined according to B'. It is not clear what it means.}\vit{What is $\phi(s,a,)$?}
 
 \begin{proof}
 Note that $\phi(s, a)$ is also a function independent of $\pi$. 
@@ -36,13 +38,14 @@ The $\Psi(s, a)$ is defined as
 \Psi(s, a) = \sum_{t=1}^{\infty} \mathbb{E}[\phi(s_t, a_t) - \rho(\pi) | s_0 = s, a_0 =a, \pi], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
 \end{equation*}
 where $\rho(\pi) = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ \phi(s, a) \big] $. 
+\vit{Use use $\rho$ in the definition of the MDP. Maybe we should change it there.}
 
 In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
 The $\Psi(s, a)$ is defined as 
 \begin{equation*}
 \Psi(s, a) = \mathbb{E}\big[ \sum_{k=1}^{\infty} \gamma^{k-1} \phi(s_{t+k}, a_{t+k}) | s_t = s, a_t =a, \pi \big], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
 \end{equation*}
-where $\gamma\in[0, 1]$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks). 
+where $\gamma\in[0, 1]$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks). \vit{You do not have 0 in the discounting coeff range in the definition. Probably you want to exclude 1 either, because the horison is infinite.}
 \end{proof}
 
 Combining the maximization and minimization, 
@@ -50,6 +53,7 @@ we can conclude that the maximization process is to find a ``reward'' that best 
 while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``reward''. 
 This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. 
 This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used.
+\vit{A parallel between AC methods and IRL is a super nice idea!}
 
 \subsection{Analysis of $f$ and $\tilde{f}$}
 Monotonicity and smoothness of $f$ and $\tilde{f}$
