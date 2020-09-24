@@ -1,11 +1,11 @@
 \section{Distribution matching formulation}
 
 \subsection{Background}
-An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , \rho_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $\rho_0:\mathcal{S} \rightarrow\mathcal{A}$ is the initial state distribution, and $\gamma\in(0, 1]$ is a discount factor. 
-A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$. 
+An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , \rho_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $\rho_0:\mathcal{S} \rightarrow\mathcal{A}$\vit{Why is initial distribution a mapping from states to actions?} is the initial state distribution, and $\gamma\in(0, 1]$ is a discount factor.\vit{Should 1 be excluded from the range?} 
+A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$.\vit{Should this be a distribution over actions?} 
 
 
-In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\leftarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
+In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\leftarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$\vit{$t\rightarrow \infty$?}, which we assume exists and is independent of $s_0$\vit{Define $s_0$} for all policies. 
 \begin{equation}\label{equ:average_reward}
 d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime
 \end{equation}
@@ -18,6 +18,7 @@ In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^
 \begin{equation}
 \gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) - d_{\pi}(s^\prime, a^\prime) + (1-\gamma)d_0(s^\prime, a^\prime) = 0, \quad s^\prime, a^\prime
 \end{equation}
+\vit{$\forall s',a'$? Give some intuition about eq 2.}
 
 
 % \begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation~\ref{equ:average_reward} holds if and only if, for any function $f$, we have
@@ -96,14 +97,19 @@ We introduce several common distribution distances. Specifically, to measure the
     where $\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})$ denotes the set of all joint distributions $\gamma(x, y)$ whose marginals are respectively $\mathbb{P}_{\pi}$ and $\mathbb{P}_{\pi_*}$ .
 \end{itemize}
 
+\vit{Not sure how rigorous this should be, sometimes people mention, that in KL the denominator can be zero only when nominator is zero as well.}
+
 \paragraph{Empirical forms} We now show how these distribution distances can be translated into another forms, which we call \textit{empirical forms} as they can estimated via samples. KL divergence and JS divergence are actually two variants of $f$-divergence. Based on the variational lower bounds of $f$-divergence\citep{nguyen2010estimating}, we have
 \begin{equation*}
 D_{f} (\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{\phi\in \Phi} \mathbb{E}_{x\sim\mathbb{P}_\pi}[-f^*(\phi) ] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[\phi(x)],
 \end{equation*}
-where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}$. Similarly for Wasserstein-1 metric, we also have its lower bound~\citep{villani2008optimal}:
+where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup_{u\in\mathbb{R}} \{ u \cdot v - f(u) \}$.\vit{, where $\cdot$ means a dot product.} Similarly for Wasserstein-1 metric, we also have its lower bound~\citep{villani2008optimal}:
 \begin{equation*}
 W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)].
 \end{equation*}
+
+\vit{Did not check the two equations for D and W.}
+\vit{This might be useful: \url{https://arxiv.org/abs/1606.00709}}
 
 \paragraph{Problem formulation} We generalize the idea of using empirical forms to estimate the analytical correspondence, and assume that: for any distribution distances used in the distribution matching, we can always have the empirical forms, and can convert the analytical form to empirical as follows:
 \begin{equation*}
@@ -113,6 +119,7 @@ where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cd
 \begin{equation}\label{equ:general_objective}
 \min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
 \end{equation}
+\vit{What is $\tilde{f}$?}
 This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. \red{entropy regulizer}
 
 % The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
