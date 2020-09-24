@@ -45,13 +45,22 @@ The $\Psi(s, a)$ is defined as
 where $\gamma\in[0, 1]$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks). 
 \end{proof}
 
+Combining the maximization and minimization, 
+we can conclude that the maximization process is to find a ``reward'' that best fits the demonstration samples and the current policy samples, 
+while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``reward''. 
+This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. 
+This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used.
+
+\subsection{Analysis of $f$ and $\tilde{f}$}
+Monotonicity and smoothness of $f$ and $\tilde{f}$
+
 
 \subsection{Deterministic adversarial imitation}
-Assume policy $\pi_{\theta}$ is deterministic
-
+One of the direct outcomes of the above connection to policy gradient is a novel algorithm, which we call Deterministic Adversarial Imitation Learning. 
+Assume policy $\pi_{\theta}$ is deterministic, then based on the deterministic policy gradient, we have
 \begin{align*}
-& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] \\
-= & \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] \\ 
+& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ f_{\phi_{\omega}}(s, a) \big] \Big] 
+= \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \phi_{\omega}(s, a) \big] \\ 
 = & \mathbb{E}_{s\sim d_{\pi_{\theta}}(s)} \big[  \nabla_\theta \pi_{\theta}(s, a) \cdot \nabla_a \Psi(s, a)\big|_{a=\pi_{\theta}(s)}\big], 
 \end{align*}
 

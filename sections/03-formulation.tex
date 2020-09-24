@@ -2,7 +2,8 @@
 
 \subsection{Background}
 An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , \rho_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $\rho_0:\mathcal{S} \rightarrow\mathcal{A}$ is the initial state distribution, and $\gamma\in(0, 1]$ is a discount factor. 
-A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$. Let $\tau_E$ denote a trajectory sampled from expert policy $\pi_E$: $\tau_E = \big[ (s_0, a_0), (s_1, a_1), ..., (s_n, a_n) \big]$. 
+A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$. 
+
 
 In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\leftarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
 \begin{equation}\label{equ:average_reward}
@@ -112,7 +113,7 @@ where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cd
 \begin{equation}\label{equ:general_objective}
 \min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
 \end{equation}
-This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. 
+This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. \red{entropy regulizer}
 
 % The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
 % \begin{align*}

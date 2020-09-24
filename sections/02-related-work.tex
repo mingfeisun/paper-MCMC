@@ -11,16 +11,9 @@ Specifically, they have shown that optimal control under entropy regularization 
 Building on such intuitions, a number of work extended RL algorithms based on picking another divergence metric, such as forward KL~\citep{peters2007reinforcement,norouzi2016reward}, and demonstrated substantially improved empirical performances in certain situations. 
 Our work draws significant inspirations from these prior works in RL and aims to provide a probabilistic perspective in Imitation Learning (IL).
 
-In the field of robotics, imitation learning (IL), or bootstrapping from IL, has often been the method of choice over RL due to difficulty in exploration and scarcity of data~\citep{} [3, 4, 5, 6]. 
-While Behavioural Cloning (BC) is the most widely used IL algorithm due to the simplicity of its objective, it suffers from the problem of covariate shift between train and test time. 
-Methods such as DAgger [27] and Dart [28] aim to relieve this mismatch, yet assume interactive access to expert policies.
 
-
-Inverse Reinforcement Learning (IRL) algorithms have shown promising results in challenging continuous control problems [29, 30, 2, 1, 7], outperforming BC. 
 Similarly to RL, the connections between IRL and divergence minimization have long been alluded. 
-Early works in IRL operated by matching feature expectations or moments [9] between policies and experts, a popular approach in distribution matching [31, 32]. 
-Furthermore, Maximum Entropy (Max-Ent) IRL [21, 22] — an IRL framework that addresses degeneracies of the original IRL formulation [10, 11] — is explicitly formulated as an energy-based modeling problem. 
-Recent scalable approaches to Max-Ent IRL [2, 1, 12], motivated by adversarial approaches to generative modeling [33], demonstrate additional connections to distribution matching. 
-Our work generalizes the objective proposed in [1, 12] based on recent insights from generative modeling [15], and further provides a unified perspective for viewing common IL algorithms. 
-Concurrent to our work, Ke et al. [34] also present a unifying probabilistic perspective on IL; 
-however, their empirical experiments solely focus on grid world domains, while our work provides comparative results on high-dimensional continuous control environments and also evaluates the effectiveness of IL algorithms for state marginal matching [16].
+Early works in IRL operated by matching feature expectations or moments~\citep{abbeel2004apprenticeship} between policies and experts, a popular approach in distribution matching~\citep{dziugaite2015training,li2015generative}.
+Recent scalable approaches to Max-Ent IRL~\citep{ho2016generative}, motivated by adversarial approaches to generative modeling, demonstrate additional connections to distribution matching. 
+Concurrent to our work, Ke et al.~\citep{ke2019imitation} also present a unifying probabilistic perspective on IL; 
+however, their empirical experiments solely focus on grid world domains, while our work provides comparative results on high-dimensional continuous control environments and also evaluates the effectiveness of IL algorithms for state marginal matching~\citep{lee2019efficient}.
