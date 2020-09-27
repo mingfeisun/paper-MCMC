@@ -1,23 +1,27 @@
 \section{Distribution matching formulation}
 
 \subsection{Background}
-An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , s_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $s_0:\mathcal{S} \rightarrow\mathbb{R}$ is the initial state distribution, and $\gamma\in[0, 1)$ is a discount factor.
-A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$.\vit{Should this be a distribution over actions?} 
-
-
-In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of initial state distribution $s_0$ for all policies. 
+An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , d_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $d_0:\mathcal{S} \rightarrow\mathbb{R}$ is the initial state distribution, and $\gamma\in[0, 1)$ is a discount factor.
+A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$.
+We now define the state-action distribution for a stochastic policy $\pi$. 
+% \vit{Should this be a distribution over actions?} 
+In the average reward formulation, the state distribution $d_\pi(s)$ is defined as $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, which we assume exists and is independent of initial state distribution $d_0$ for all policies. 
+We slightly abuse notation by denoting state-action distribution as $d_{\pi}(s, a)$; note that $d_{\pi}(s, a) = d_{\pi}(s)\pi(a|s)$. 
+Based on the stationarity of a Markov chain, we have the following equation for stationary state-action distribution:
 \begin{equation*}\label{equ:average_reward}
-d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime
+d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime.
 \end{equation*}
-In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
+In the discounted reward formulation, $d_\pi(s)$ is defined as $d_{\pi}(s)=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|d_0, \pi)$. Similarly, we have the following equation for stationary state-action distribution: 
 % $(s, a)$ distribution
 % \begin{equation}
 % d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
 % \end{equation}
 \begin{equation*}
-\gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) - d_{\pi}(s^\prime, a^\prime) + (1-\gamma)d_0(s^\prime, a^\prime) = 0, \quad \forall s^\prime, a^\prime
+d_{\pi}(s^\prime, a^\prime) = \gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) + (1-\gamma)d_0(s^\prime, a^\prime), \quad \forall s^\prime, a^\prime. 
 \end{equation*}
-\vit{$\forall s',a'$? Give some intuition about eq 2.}
+Intuitively, this stationarity equation simply reflects the conservation of flow of the stationary distribution: at each timestep, the flow out of $(s, a)$ (the LHS) must equal the flow into $(s^\prime, a^\prime)$ (the RHS). And in the discounted state-action distribution, such flow conservation should also take into account the initial state-action distribution, i.e., $d_0(s^\prime, a^\prime)$. 
+
+% \vit{$\forall s',a'$? Give some intuition about eq 2.}
 
 
 % \begin{lemma} Denote by $(s, a, s^\prime)\sim d_{\pi}$ draws from $d_{\pi}(s)\pi(a|s)T(s^\prime|s, a)$. Equation~\ref{equ:average_reward} holds if and only if, for any function $f$, we have
@@ -107,8 +111,8 @@ where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup
 W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)].
 \end{equation*}
 
-\vit{Did not check the two equations for D and W.}
-\vit{This might be useful: \url{https://arxiv.org/abs/1606.00709}}
+% \vit{Did not check the two equations for D and W.}
+% \vit{This might be useful: \url{https://arxiv.org/abs/1606.00709}}
 
 \paragraph{Problem formulation} We generalize the idea of using empirical forms to estimate the analytical correspondence, and assume that: for any distribution distances used in the distribution matching, we can always have the empirical forms, and can convert the analytical form to empirical as follows:
 \begin{equation*}
@@ -118,7 +122,7 @@ where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cd
 \begin{equation}\label{equ:general_objective}
 \min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
 \end{equation}
-\vit{What is $\tilde{f}$?}
+% \vit{What is $\tilde{f}$?}
 This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. \red{entropy regulizer}
 
 % The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 

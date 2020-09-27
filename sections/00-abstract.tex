@@ -1,3 +1,10 @@
 \begin{abstract}
-We present Deterministic Adversarial Imitation Learning.
+We consider a specific problem of imitation learning that learns a policy which generates similar behaviors, rather than optimal behaviors, as demonstrations. 
+One approach to solve this problem is to match the state-action distribution induced by the policy to the state-action distribution showed by the demonstration. 
+We point out that such approach has two limitations: 
+no consensus or guidelines on choosing the distribution distance to compare distributions, and a lack of uniform formulation of the distribution matching for imitation learning.
+To fill these gaps, we introduce a uniform formulation and show how previous methods can fit into the proposed formulation. 
+Also with the formulation, we analyze how the distribution matching for imitation learning links to reinforcement learning methods, particularly to policy gradient methods.
+Such analysis outlines the selection of distribution distance and also yields a novel and more sample-efficient imitation algorithm, Deterministic Adversarial Imitation Learning (DAIL). 
+Empirical results show that DAIL outperforms previous methods across all environments and by a large margin. 
 \end{abstract}

@@ -11,7 +11,7 @@ We now show that how this $\min$-$\max$ optimization problem resembles the actor
 \nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
 = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(s, a) \big].
 \end{equation*}
-\vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
+% \vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
 
 \paragraph{Minimization} Second, the $\min_{\pi}$ is with respect to $\pi$, which is parameterized with $\theta$ and only included in the first term.
 \begin{equation*}
@@ -26,7 +26,7 @@ For any state-action distribution $d_{\pi_{\theta}}$, in either the average or d
 \end{equation*}
 where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. 
 \end{theorem}
-\vit{You often use 'A is defined according to B'. It is not clear what it means.}
+% \vit{You often use 'A is defined according to B'. It is not clear what it means.}
 
 \begin{proof}
 Note that $f(s, a)$ is a function independent of $\pi$. 
@@ -53,7 +53,7 @@ we can conclude that the maximization process is to find a ``reward'' that best 
 while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``reward''. 
 This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. 
 This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used.
-\vit{A parallel between AC methods and IRL is a super nice idea!}
+% \vit{A parallel between AC methods and IRL is a super nice idea!}
 
 \subsection{Analysis of $f$ and $\tilde{f}$}
 Monotonicity and smoothness of $f$ and $\tilde{f}$
