@@ -23,13 +23,13 @@ For any state-action distribution $d_{\pi_{\theta}}$, in either the average or d
 \begin{equation*}
 \nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f_{\omega}(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi_{\omega}(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
 \end{equation*}
-where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. 
+where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. \sw{Defined how?  This is not precise enough for a theorem statement.}
 \end{theorem}
 % \vit{You often use 'A is defined according to B'. It is not clear what it means.}
 
 \begin{proof}
 Note that $f(s, a)$ is a function independent of $\pi$. 
-The proof is similar to that of the policy gradient theorem in that we interpret $f(s, a)$ as the reward function, i.e., $\hat{r}(s, a) := -f(s, a)$. 
+The proof is similar to that of the policy gradient theorem in that we interpret $f(s, a)$ as the reward function, i.e., $\hat{r}(s, a) := -f(s, a)$. \sw{This is not a proof, it's not even a proof sketch.}
 
 In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
 The $\Psi(s, a)$ is defined as 
@@ -50,8 +50,8 @@ where $\gamma\in[0, 1)$ is a discount rate ($\gamma=1$ is allowed only in episod
 Combining the maximization and minimization, 
 we can conclude that the maximization process is to find a ``reward'' that best fits the demonstration samples and the current policy samples, 
 while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``reward''. 
-This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. 
-This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used. \sw{I don't get what's novel about this observation.  Also, the analogy does seem to hold, as estimating the reward function is different from estimating the expected return.  In GAIL for example, you have a discriminator, which can be thought of as reward, which can be optimised using AC methods, giving three components (actor, critic, discriminator) not two.}
+This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. \sw{This is really vague: how exactly is it like AC?  Your claim is that $\Psi$ is like the critic?  But you still have to learn $f$ by optimising $\omega$, no?  That seems fundamentally different from AC where the reward is given, not learned.}
+This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used. \sw{I don't get what's novel about this observation.  In GAIL for example, you have a discriminator, which can be thought of as reward, which can be optimised using AC methods, giving three components (actor, critic, discriminator) that correspond to your $\pi$, $\Psi$, and $f$.}
 % \vit{A parallel between AC methods and IRL is a super nice idea!}
 
 \subsection{Analysis of $f$ and $\tilde{f}$}

@@ -119,7 +119,7 @@ W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\s
 \min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big]}_{\text{Empirical form}},
 \end{equation*}
 \sw{Why the min over $\pi$ here if we are just defining divergences, not objectives?}
-where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(s, a)$ is defined according to $f(s, a)$. \red{given examples} Now we have the \textbf{general objective function} for the distribution matching in imitation learning:
+where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(s, a)$ is defined according to $f(s, a)$. \sw{vague: defined how?} \red{given examples} Now we have the \textbf{general objective function} for the distribution matching in imitation learning:
 \begin{equation}\label{equ:general_objective}
 \min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
 \end{equation}
