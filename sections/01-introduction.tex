@@ -8,25 +8,25 @@ the problem of learning a policy which matches the distribution of induced state
 % \vit{I think 'distribution matching' should be defined or explained in more detail.}
 Such distribution matching setting is fundamentally different from learning any optimal policies in the sense that it solely interprets the states and actions provided in demonstrations as samples from a target distribution, i.e., demonstration distribution. 
 % \vit{Isn't it always the case in learning from demonstration?}
-Under this interpretation, imitation learning is then framed as learning a behavior policy which minimizes the distance between demonstration distribution and the state-action distribution induced by the policy interacting with the environment. 
-One direct application of this setting is to train agents to generate human-like behaviors to pass the Turing test~\citep{saygin2000turing}, one of the primary goals in the field of artificial intelligence. 
+Under this interpretation, imitation learning is then framed as learning a behavior policy which minimizes the distance between demonstration distribution and the state-action distribution induced by the policy interacting with the environment. \sw{I think it's weird to describe this as a specific setting.  The goal in IL is always to recover the expert policy; this is just one way of formalising that goal.}
+One direct application of this setting is to train agents to generate human-like behaviors to pass the Turing test~\citep{saygin2000turing}, one of the primary goals in the field of artificial intelligence. \sw{is it tho}
 Recently, \citet{ho2016generative} showed that by adopting Jensen-Shannon divergence as the distribution distance, the minimization can be achieved by iteratively performing two alternating steps, reminiscent of GAN algorithms~\citep{goodfellow2014generative}. 
 Many follow-up studies then propose different distribution distances, including $f$-divergence~\citep{ke2019imitation} and Wasserstein metric~\citep{xiao2019wasserstein}, each corresponding to a different approach for distribution matching in imitation learning. 
 
 
 
 % limitations
-It is clear to see the limitations of current distribution matching approaches.
+However, such distribution matching approaches have two key limitations.
 First, there is no consensus or guidelines on what the distribution distances should be used. 
-As both divergences and metrics are claimed to perform well in distribution matching~\citep{ke2019imitation,ghasemipour2020divergence,xiao2019wasserstein}, the selection of distribution distance for a specific imitation problem becomes confusing and error-prone if without any domain knowledge in divergences and metrics.
-Second, there is no uniform formulation of the distribution matching for imitation learning.
+As both divergences and metrics are claimed to perform well in distribution matching~\citep{ke2019imitation,ghasemipour2020divergence,xiao2019wasserstein}, the selection of distribution distance for a specific imitation problem can confusing and error-prone. % if without any domain knowledge in divergences and metrics.
+Second, there is no uniform formulation of the distribution matching for imitation learning. \sw{What does this mean?  Isn't this exactly what the Ghasemipour paper does?}
 % \vit{What does 'general formulation' mean?}
-As a side-effect, the link between imitation learning and other machine learning, especially the reinforcement learning is still unclear.
+As a side effect, the link between imitation learning and other forms of machine learning, especially the reinforcement learning is still unclear. \sw{In what way?  RL is a subroutine in many IL methods.  BC is supervised learning.  What's unclear?}
 % \vit{I don't understand the connection.}
 For example, although many studies adopt reinforcement learning methods to solve the distribution matching, 
-one may wonder why reinforcement learning has to be necessarily involved?
+one may wonder why reinforcement learning has to be necessarily involved. \sw{To find a policy optimal wrt a recovered reward function?  What's the mystery here.}
 Also, figuring out the link between imitation learning and other machine learning methods could help reduce imitation learning to other easily solved problems. 
-Furthermore, a uniform formulation of the distribution matching could allow us to spot the fundamental problems in the distribution matching for imitation learning. 
+Furthermore, a uniform formulation of distribution matching could allow us to spot the fundamental problems in the distribution matching for imitation learning. 
 % Some problems are essentially inherited from the methods 
 % We still have no idea/clues of whether and how some fundamental problems of the distribution matching, including the sample efficiency and on-policy/off-policy manner, could be addressed. 
 % Many studies proposed different ideas to improve the sample efficiency in distribution matching, e.g., adding a replay buffer, and change the on-policy training to off-policy manner. 
@@ -34,9 +34,9 @@ Furthermore, a uniform formulation of the distribution matching could allow us t
 
 % uniform formulation; how current methods fit into the formulation; the link to other machine learning methods; underlying problems; and new algorithms
 In this work, we introduce a uniform formulation of distribution matching approaches to imitation learning. 
-We demonstrate that how previous methods can be fit into this uniform formulation, 
+We show how existing methods can be fit into this uniform formulation, 
 which also yields clues on what the distribution distance should be selected. 
-With the uniform formulation, we further analyze how the distribution matching approaches is related to reinforcement learning methods, in particular to policy gradient methods. 
-We then point out that some challenging problems underlying the distribution matching are essentially originated from the reinforcement learning. 
-Based on the uniform formulation, we then reduce the distribution matching problem into action-value estimation, which yields a novel and more sample-efficient algorithm, Deterministic Adversarial Imitation Learning (DAIL). 
+With the uniform formulation, we further analyze how distribution matching approaches are related to reinforcement learning, in particular to policy gradient methods. 
+We then show that some challenging problems underlying the distribution matching actually  originate from reinforcement learning. 
+Based on the uniform formulation, we then reduce the distribution matching problem to action-value estimation, which yields a novel and more sample-efficient algorithm, Deterministic Adversarial Imitation Learning (DAIL). 
 Empirical results show that DAIL outperforms previous methods across all environments and by a large margin. 
