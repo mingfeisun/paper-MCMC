@@ -1,25 +1,33 @@
 \section{Distribution matching formulation}
 
 \subsection{Background}
-An infinite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , d_0, \gamma)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $d_0:\mathcal{S} \rightarrow\mathbb{R}$ is the initial state distribution, and $\gamma\in[0, 1)$ is a discount factor.
+An finite-horizon, discounted Markov Decision Process (MDP) is modeled by tuple $(\mathcal{S} , \mathcal{A}, P, r , d_0, \gamma, H)$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $P:\mathcal{S}\times\mathcal{A}\times\mathcal{S}\rightarrow \mathbb{R}$ denotes the state transition probability, $r:\mathcal{S}\times\mathcal{A}\rightarrow\mathbb{R}$ represents the reward function, $d_0:\mathcal{S} \rightarrow\mathbb{R}$ is the initial state distribution, $\gamma\in[0, 1)$ is a discount factor, and $H\in \mathbb{N}^+$ is the time horizon.
 A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow [0, 1]$.
-We now define the state-action distribution for a stochastic policy $\pi$. 
+Let a trajectory be a sequence of state-action pairs $\tau=\{s_0, a_0, s_1, a_1, ..., a_{T-1}, s_T\}$
+A stochastic policy $\pi$ induces a  distribution of trajectories $d_{\pi}(\tau)$ defined as follows:
+\begin{equation}\label{equ:d_pi_definition}
+d_{\pi}(\tau) = d_0(s_0)\prod_{t=1}^{T}\pi(s_{t-1}, a_{t-1})P(s_{t}|s_{t-1}, a_{t-1})
+\end{equation}
+We slightly abuse notation by denoting the state distribution also as $d_\pi(s)$: $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, 
+which we assume exists and is independent of the initial state distribution $d_0$ for all policies. 
+For state-action distribution $d_{\pi}(s, a)$, we have $d_{\pi}(s, a) = d_{\pi}(s)\pi(a|s)$. 
+% We define the distribution of a stochastic policy $\pi$.  
+
 % \vit{Should this be a distribution over actions?} 
-In the average reward formulation, the state distribution $d_\pi(s)$ is defined as $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, which we assume exists and is independent of the initial state distribution $d_0$ for all policies. 
-We slightly abuse notation by denoting state-action distribution as $d_{\pi}(s, a)$; note that $d_{\pi}(s, a) = d_{\pi}(s)\pi(a|s)$. 
-Based on the stationarity of a Markov chain, we have the following for stationary state-action distributions:
-\begin{equation*}\label{equ:average_reward}
-d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime.
-\end{equation*}
-In the discounted reward formulation, $d_\pi(s)$ is defined as $d_{\pi}(s)=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|d_0, \pi)$. Similarly, we have the following for stationary state-action distributions: 
+% In the average reward formulation, the state distribution $d_\pi(s)$ is defined as $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, which we assume exists and is independent of the initial state distribution $d_0$ for all policies. 
+% Based on the stationarity of a Markov chain, we have the following for stationary state-action distributions:
+% \begin{equation*}\label{equ:average_reward}
+% d_{\pi}(s^\prime, a^\prime) = \sum_{s, a} \pi(a^\prime|s^\prime) T_{\pi}(s^\prime|s, a) d_{\pi}(s, a), \quad \forall s^\prime, a^\prime.
+% \end{equation*}
+% In the discounted reward formulation, $d_\pi(s)$ is defined as $d_{\pi}(s)=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|d_0, \pi)$. Similarly, we have the following for stationary state-action distributions: 
 % $(s, a)$ distribution
 % \begin{equation}
 % d(s^\prime, a^\prime) = \underbrace{(1-\gamma) d_{0}(s^\prime, a^\prime) + \gamma \int \pi(a^\prime|s^\prime) P(s^\prime|s, a) d(s, a) ds da}_{(\mathcal{T}\circ d) (s^\prime, a^\prime)}, \quad \forall (s^\prime, a^\prime)\in \mathcal{S}\times\mathcal{A}. 
 % \end{equation}
-\begin{equation*}
-d_{\pi}(s^\prime, a^\prime) = \gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) + (1-\gamma)d_0(s^\prime, a^\prime), \quad \forall s^\prime, a^\prime. 
-\end{equation*}
-Intuitively, this stationarity equation simply reflects the conservation of flow of the stationary distribution: at each timestep, the flow out of $(s, a)$ (the LHS) must equal the flow into $(s^\prime, a^\prime)$ (the RHS). And in the discounted state-action distribution, such flow conservation should also take into account the initial state-action distribution, i.e., $d_0(s^\prime, a^\prime)$. 
+% \begin{equation*}
+% d_{\pi}(s^\prime, a^\prime) = \gamma \sum_{s, a}\pi(a^\prime|s^\prime) T_{\pi}(s^\prime |s, a) d_{\pi}(s, a) + (1-\gamma)d_0(s^\prime, a^\prime), \quad \forall s^\prime, a^\prime. 
+% \end{equation*}
+% Intuitively, this stationarity equation simply reflects the conservation of flow of the stationary distribution: at each timestep, the flow out of $(s, a)$ (the LHS) must equal the flow into $(s^\prime, a^\prime)$ (the RHS). And in the discounted state-action distribution, such flow conservation should also take into account the initial state-action distribution, i.e., $d_0(s^\prime, a^\prime)$. 
 
 % \vit{$\forall s',a'$? Give some intuition about eq 2.}
 
@@ -104,24 +112,27 @@ We introduce several common distribution distances. Specifically, to measure the
 
 \paragraph{Empirical forms} We now show how these distribution distances can be translated into another forms, which we call \textit{empirical forms} as they can estimated via samples. KL divergence and JS divergence are actually two variants of $f$-divergence. Based on the variational lower bounds of the $f$-divergence \citep{nguyen2010estimating}, we have
 \begin{equation*}
-D_{f} (\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{\phi\in \Phi} \mathbb{E}_{x\sim\mathbb{P}_\pi}[-f^*(\phi) ] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[\phi(x)],
+D_{f} (\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{\phi\in \Phi} \mathbb{E}_{x\sim\mathbb{P}_\pi}\big[-f^*\big(\phi(x)\big) \big] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[\phi(x)],
 \end{equation*}
 where $f^*$ is the \textit{convex conjugate} for $f$, defined as $f^*(v) := \sup_{u\in\mathbb{R}} \{ uv - f(u) \}$. Similarly for Wasserstein-1 metric, we also have its lower bound~\citep{villani2008optimal}:
 \begin{equation*}
-W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)].
+W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \sup_{||f||_{L}\leq 1} \mathbb{E}_{x\sim\mathbb{P}_\pi}[f(x)] + \mathbb{E}_{x\sim\mathbb{P}_{\pi_*}}[-f(x)], 
 \end{equation*}
+where $||f||_{L}\leq 1$ denotes the set of 1-Lipschitz functions.  
 
 % \vit{Did not check the two equations for D and W.}
 % \vit{This might be useful: \url{https://arxiv.org/abs/1606.00709}}
 
 \paragraph{Problem formulation} We generalize the idea of using empirical forms to estimate the analytical correspondence, and assume that, for any distribution distances used in the distribution matching, we can always convert the analytical form to empirical as follows:
 \begin{equation*}
-\min_{\pi} \underbrace{D\big(d_{\pi}(s, a), d_{\pi_*}(s, a)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big]}_{\text{Empirical form}},
+\min_{\pi} \underbrace{D\big(d_{\pi}(\tau), d_{\pi_*}(\tau)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big]}_{\text{Empirical form}},
 \end{equation*}
 \sw{Why the min over $\pi$ here if we are just defining divergences, not objectives?}
-where $f(s, a)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(s, a)$ is defined according to $f(s, a)$. \sw{vague: defined how?} \red{given examples} Now we have the \textbf{general objective function} for the distribution matching in imitation learning:
+where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$. \sw{vague: defined how?} \red{given examples} 
+Note that we use trajectories $\tau$ instead of the state-action pairs $(s, a)$ as in imitation learning the trajectories are identically independent distributed (i.i.d) and the state-action pairs are correlated. 
+Now we have the \textbf{unified objective function} for the distribution matching in imitation learning:
 \begin{equation}\label{equ:general_objective}
-\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{(s, a)\sim d_{\pi}} \big[ f(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[\tilde{f}(s, a) \big].
+\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau)(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big].
 \end{equation}
 \sw{Isn't this exactly the same as the RHS above?}
 % \vit{What is $\tilde{f}$?}

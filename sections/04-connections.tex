@@ -1,58 +1,87 @@
 \section{Connections to reinforcement learning}
-We now show how optimizing Equation~\ref{equ:general_objective} is related \sw{vague: related how?} to actor-critic algorithms.
+We now show optimizing Equation~\ref{equ:general_objective} is equivalent 
+% \sw{vague: related how?} 
+to actor-critic algorithms.
 
 \subsection{Actor-Critic optimization}
 Assume we parametrize $\pi$ and $f$ with $\theta$ and $\omega$ respectively. 
 In order to optimize Equation~\ref{equ:general_objective}, we can iteratively solve the maximization and the minimization. 
 We now show that how this $\min$-$\max$ optimization problem resembles the actor-critic algorithms in reinforcement learning. 
 
-First, the $\sup_{f\in\mathcal{F}}$ can be directly optimized by taking the gradient of $f_{\omega}(s, a)$ and $\tilde{f}_{\omega}(s, a)$: 
+First, the $\sup_{f\in\mathcal{F}}$ can be directly optimized by taking the gradient of $f_{\omega}(\tau)$ and $\tilde{f}_{\omega}(\tau)$: 
 \begin{equation*}
-\nabla_{\omega} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
-= \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(s, a) \big].
+\nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
+= \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
 \end{equation*}
 % \vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
 Second, the $\min_{\pi}$ is wrt $\pi$, which is parameterized with $\theta$ and only included in the first term:
+\begin{align*}
+& \nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big] 
+= \nabla_{\theta} \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] \\
+= & \nabla_{\theta} \int_{\tau} d_{\pi_{\theta}}(\tau) f_{\omega}(\tau) d\tau 
+= \int_{\tau} \nabla_{\theta} d_{\pi_{\theta}}(\tau) f_{\omega}(\tau) d\tau 
+= \int_{\tau}  d_{\pi_{\theta}}(\tau) f_{\omega}(\tau) \nabla_{\theta}\log d_{\pi_{\theta}}(\tau)  d\tau \\
+= & \mathbb{E}_{\tau\sim d_{\pi_\theta}} \big[ f_{\omega}(\tau) \cdot \nabla_{\theta}\log d_{\pi_{\theta}}(\tau) \big].
+\end{align*}
+Plug in the definition of $d_{\pi_{\theta}}(\tau)$ in Equation~\ref{equ:d_pi_definition}, we have
 \begin{equation*}
-\nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big]
-= \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big]. 
+\nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big] 
+= \mathbb{E}_{\tau\sim d_{\pi_\theta}} \Big[ f_{\omega}(\tau) \cdot \big( \sum_{t=1}^{T}\nabla_{\theta}\log \pi_{\theta}(s_t, a_t) \big) \Big].
 \end{equation*}
-Since $\pi_{\theta}$ is within samples, \sw{what does this mean?} directly computing the gradient would be intractable. However, in reinforcement learning the objective, $J(\theta)=\mathbb{E}_{s\sim d_{\pi_{\theta}}(s), a\sim\pi_{\theta}}[r(s, a)]$, shares the same form. If we interpret $f_{\omega}(s, a)$ as a reward function, we can then compute the gradient. 
-\begin{theorem}\label{theo:policy_gradient}
-For any state-action distribution $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $f_{\omega}$, 
-\begin{equation*}
-\nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f_{\omega}(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi_{\omega}(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
-\end{equation*}
-where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. \sw{Defined how?  This is not precise enough for a theorem statement.}
-\end{theorem}
+% Since $\pi_{\theta}$ is within samples, \sw{what does this mean?} directly computing the gradient would be intractable. However, in reinforcement learning the objective, $J(\theta)=\mathbb{E}_{s\sim d_{\pi_{\theta}}(s), a\sim\pi_{\theta}}[r(s, a)]$, shares the same form. If we interpret $f_{\omega}(s, a)$ as a reward function, we can then compute the gradient. 
+% \begin{theorem}\label{theo:policy_gradient}
+% For any state-action distribution $d_{\pi_{\theta}}$, in either the average or discounted cases, and any function $f_{\omega}$, 
+% \begin{equation*}
+% \nabla_\theta \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f_{\omega}(s, a) \big] = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ \Psi_{\omega}(s, a) \cdot \nabla_\theta \log \pi_{\theta}(s, a) \big], 
+% \end{equation*}
+% where $\Psi_{\omega}(s, a)$ is a function defined according to $f_{\omega}(s, a)$. \sw{Defined how?  This is not precise enough for a theorem statement.}
+% \end{theorem}
 % \vit{You often use 'A is defined according to B'. It is not clear what it means.}
 
-\begin{proof}
-Note that $f(s, a)$ is a function independent of $\pi$. 
-The proof is similar to that of the policy gradient theorem in that we interpret $f(s, a)$ as the reward function, i.e., $\hat{r}(s, a) := -f(s, a)$. \sw{This is not a proof, it's not even a proof sketch.}
+% \begin{proof}
+% Note that $f(s, a)$ is a function independent of $\pi$. 
+% The proof is similar to that of the policy gradient theorem in that we interpret $f(s, a)$ as the reward function, i.e., $\hat{r}(s, a) := -f(s, a)$. \sw{This is not a proof, it's not even a proof sketch.}
+% 
+% In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
+% The $\Psi(s, a)$ is defined as 
+% \begin{equation*}
+% \Psi(s, a) = \sum_{t=1}^{\infty} \mathbb{E}[f(s_t, a_t) - \rho(\pi) | s_0 = s, a_0 =a, \pi], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
+% \end{equation*}
+% where $\rho(\pi) = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f(s, a) \big] $. 
+% 
+% 
+% In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
+% The $\Psi(s, a)$ is defined as 
+% \begin{equation*}
+% \Psi(s, a) = \mathbb{E}\big[ \sum_{k=1}^{\infty} \gamma^{k-1} f(s_{t+k}, a_{t+k}) | s_t = s, a_t =a, \pi \big], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
+% \end{equation*}
+% where $\gamma\in[0, 1)$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks).
+% \end{proof}
 
-In the average reward formulation, $d_\pi$ is defined as $d_{\pi}=\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|s_0, \pi)$, which we assume exists and is independent of $s_0$ for all policies. 
-The $\Psi(s, a)$ is defined as 
-\begin{equation*}
-\Psi(s, a) = \sum_{t=1}^{\infty} \mathbb{E}[f(s_t, a_t) - \rho(\pi) | s_0 = s, a_0 =a, \pi], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
-\end{equation*}
-where $\rho(\pi) = \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}}\big[ f(s, a) \big] $. 
-
-
-In the discounted reward formulation, $d_\pi$ is defined as $d_{\pi}=\sum_{t=0}^{\infty}\gamma^t Pr(s_t=s, a_t=a|s_0, \pi)$
-The $\Psi(s, a)$ is defined as 
-\begin{equation*}
-\Psi(s, a) = \mathbb{E}\big[ \sum_{k=1}^{\infty} \gamma^{k-1} f(s_{t+k}, a_{t+k}) | s_t = s, a_t =a, \pi \big], \quad \forall s\in\mathcal{S}, a\in\mathcal{A}, 
-\end{equation*}
-where $\gamma\in[0, 1)$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks).
-\end{proof}
-
-Combining the maximization and minimization, 
-we can conclude that the maximization process is to find a ``reward'' that best fits the demonstration samples and the current policy samples, 
-while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``reward''. 
+Combining the maximization and minimization,
+we can conclude that the maximization process is to find a ``value'' for each trajectory such that the expectation over all trajectories provided in the demonstration and induced by the policy is maximized, 
+while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``value''. 
 This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}. \sw{This is really vague: how exactly is it like AC?  Your claim is that $\Psi$ is like the critic?  But you still have to learn $f$ by optimising $\omega$, no?  That seems fundamentally different from AC where the reward is given, not learned.}
+
+
 This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used. \sw{I don't get what's novel about this observation.  In GAIL for example, you have a discriminator, which can be thought of as reward, which can be optimised using AC methods, giving three components (actor, critic, discriminator) that correspond to your $\pi$, $\Psi$, and $f$.}
 % \vit{A parallel between AC methods and IRL is a super nice idea!}
+
+\begin{equation*}
+\min_{\pi_{\theta}} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[\tilde{f}(\tau) \big].
+\end{equation*}
+
+\begin{equation*}
+\nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
+= \nabla_{\theta} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big]
+= \mathbb{E}_{\tau\sim \pi_{\theta}}\big[ \nabla \pi_{\theta}(\tau) f_{\omega}(\tau) \big]
+\end{equation*}
+\begin{equation*}
+\nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
+= \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
+\end{equation*}
+where $f(\tau)= x^{T} \cdot \phi$. For discounted reward, $x= (1, \gamma, \gamma^{2},..., \gamma^{H-1})$, and $\phi_i=r(s_i, a_i)$, where $\phi_i$ is the $i$-th element in $\phi$. 
+For average reward, $x= (\underbrace{1, 1,..., 1}_{H})$, and $\phi_i=r(s_i, a_i)$. 
 
 \subsection{Analysis of $f$ and $\tilde{f}$}
 Monotonicity and smoothness of $f$ and $\tilde{f}$
