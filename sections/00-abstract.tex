@@ -1,14 +1,20 @@
 \begin{abstract}
-We consider distribution matching approaches for imitation learning and propose a unified formulation for different statistical distance measures.  
-imitation learning and show its link to actor-critic algorithms.
-Existing studies attempt to unify different imitation learning methods into one framework by interpreting them as results of using different statistical divergence to measure the distribution discrepancy. 
-These attempts, however, have three key limitations:
-lack of consider other statistical metrics than only divergence measures, 
-few or even contradicting clues on what the statistical distance should be used;
-and lack of insights of how the changing discriminator could introduce bias and variance in the learning process. 
-To overcome these limitations, we introduce a unified formulation and show how previous methods can fit into the proposed formulation. 
+% distribution matching
+Distribution matching approaches for imitation learning refer to the idea of learning a policy by minimizing the statistical distance between the sample distribution in demonstrations and the distribution induced by the policy.
+% the attempts to unify (why unify?)
+Such distribution matching idea, as attempted by many recent studies, can also be used to unify different imitation learning methods into one formulation by selecting divergence measures as the statistical distance.
+% as selecting different statistical distances, especially divergence, can yield different methods. 
+% Different statistical distances  This idea also sheds light on unify existing imitation learning methods. 
+% Existing studies showed that using different statistical distances for distribution comparison yields different imitation learning methods, and attempted to unify existing imitation learning methods into one framework, just by choosing different divergence measures. 
+% the limitations
+However, these attempts have three key limitations:
+lack of considering other statistical metrics than divergence, 
+few or contradicting clues on the selection of the statistical distance, 
+and no analysis of influences of different statistical distance on the training process. 
+% the methods
+To overcome these limitations, we propose a unified formulation and show how previous methods can fit into the proposed formulation. 
 By this unified formulation, we analyze the links between the distribution matching for imitation learning and reinforcement learning methods, particularly policy gradient methods.
 Our analysis outlines the selection 
-of distribution distances and also yields a novel and more sample-efficient imitation algorithm, Deterministic Adversarial Imitation Learning (DAIL). 
+of distribution distances and also yields a novel and more sample-efficient imitation algorithm, Deterministic Adversarial Imitation Learning (DAIL).
 Empirical results show that DAIL outperforms previous methods across all environments and by a large margin. 
 \end{abstract}

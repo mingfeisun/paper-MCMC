@@ -8,10 +8,10 @@ A stochastic policy $\pi$ induces a  distribution of trajectories $d_{\pi}(\tau)
 \begin{equation}\label{equ:d_pi_definition}
 d_{\pi}(\tau) = d_0(s_0)\prod_{t=1}^{T}\pi(s_{t-1}, a_{t-1})P(s_{t}|s_{t-1}, a_{t-1})
 \end{equation}
-We slightly abuse notation by denoting the state distribution also as $d_\pi(s)$: $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, 
+We slightly abuse notation by also denoting the state distribution as $d_\pi(s)$: $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, 
 which we assume exists and is independent of the initial state distribution $d_0$ for all policies. 
 For state-action distribution $d_{\pi}(s, a)$, we have $d_{\pi}(s, a) = d_{\pi}(s)\pi(a|s)$. 
-To differentiate the distribution of demonstrations, we denote it as $d_{*}(\tau)$ and assume it is given in the form of trajectory samples. 
+We also denote the distribution of demonstrations as $d_{*}(\tau)$ and assume it is given in the form of trajectory samples. 
 % We define the distribution of a stochastic policy $\pi$.  
 
 % \vit{Should this be a distribution over actions?} 
@@ -93,11 +93,11 @@ To differentiate the distribution of demonstrations, we denote it as $d_{*}(\tau
 % \mathbf{d}_{\pi} = (1-\gamma) (\mathbf{I} - \gamma \mathbf{P}_{\pi}^T)^{-1}\mathbf{d}_0.
 % \end{equation*}
 
-\subsection{Empirical forms of distribution measures}
+\subsection{Empirical forms of statistical distances}
 
-\paragraph{Distribution measures} 
+\paragraph{Statistical distances} 
 % \sw{Is it accurate to call these distances given eg the KL is not a metric?}
-We introduce several common distribution measures. Specifically, to measure the discrepancy between two distributions, we can use the \textit{Kullback-Leibler} (KL) divergence, \textit{Jensen-Shannon} (JS) divergence, and \textit{Wasserstein-1} metric. Given two distributions $\mathbb{P}_\pi$ and $\mathbb{P}_{\pi_*}$, their analytical forms are given as below:
+We introduce several common statistical distances. Specifically, to measure the discrepancy between two distributions, we can use the $f$-divergence (which includes \textit{Kullback-Leibler} (KL) divergence, Hellinger distance, and total variation distance), and \textit{Jensen-Shannon} (JS) divergence, and \textit{Wasserstein-1} metric. Given two distributions $\mathbb{P}_\pi$ and $\mathbb{P}_{\pi_*}$, their analytical forms are given as below:
 \begin{itemize}
     \item KL divergence: 
     $\text{KL}(\mathbb{P}_\pi || \mathbb{P}_{\pi_*}) = \int \log\Big( \frac{P_\pi(x)}{P_{\pi_*}(x)} \Big) P_{\pi}(x) dx$.
