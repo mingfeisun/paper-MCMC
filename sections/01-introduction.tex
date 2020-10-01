@@ -4,7 +4,7 @@ Distribution matching,
 an increasingly important approach for imitation learning, 
 is to learn a policy which matches its induced distribution with the demonstrated distribution~\citep{ho2016generative}.
 This approach is fundamentally different from learning any optimal policies in the sense that it solely interprets the demonstrations as samples from a target distribution.
-Under this interpretation, the imitation learning is recast into into learning a behavior policy which minimizes the statistical distribution distance between demonstrations and the samples induced by the policy interacting with the environment.
+Under this interpretation, the imitation learning is recast into learning a behavior policy which minimizes the statistical distribution distance between demonstrations and the samples induced by the policy interacting with the environment.
 \citet{ho2016generative} showed that by adopting Jensen-Shannon divergence as the statistical distance,
 the minimization can be achieved by iteratively performing two alternating modules, generator and discriminator, 
 reminiscent of Generative Adversarial Nets (GAN)~\citep{goodfellow2014generative}. 
@@ -13,21 +13,23 @@ The resulting algorithm, generative adversarial imitation learning (GAIL), has s
 
 % attempts to unify imitation learning algorithms
 Meanwhile, the distribution matching view also provides a possibility to unify different imitation learning methods. 
-Particularly, existing studies indicated that different statistical distance measures (not necessarily metrics) yield different approaches for distribution matching in imitation learning. 
-For example, \citet{ho2016generative} showed that many classic methods, e.g., feature expectation matching~\citep{abbeel2004apprenticeship}, multiplicative weights for apprenticeship learning~\citep{syed2008game} and linear programming apprenticeship learning~\citep{syed2008apprenticeship}, can be derived by adopting total probability difference as the statistical distance measure.
-\citet{ke2019imitation} and \citet{ghasemipour2020divergence} recently implied that behavioral cloning (BC), dataset aggregation (Dagger)~\citep{ross2011reduction} and GAIL~\citep{ho2016generative} are just outcomes of choosing different divergence measures for comparing distributions, corresponding respectively to KL divergence, total variation distance and Jensen-Shannon divergence. 
+Particularly, existing studies indicated that different statistical distance measures (not necessarily metrics) yield different imitation learning approaches.
+For example, \citet{ho2016generative} showed that many classic methods, e.g., feature expectation matching~\citep{abbeel2004apprenticeship}, multiplicative weights for apprenticeship learning~\citep{syed2008game} and linear programming apprenticeship learning~\citep{syed2008apprenticeship}, 
+can be derived by adopting total probability difference as the statistical distance measure.
+\citet{ke2019imitation} and \citet{ghasemipour2020divergence} recently implied that behavioral cloning (BC), dataset aggregation (Dagger)~\citep{ross2011reduction} and GAIL~\citep{ho2016generative} are just a result of choosing different divergence measures, 
+corresponding respectively to KL divergence, total variation distance and Jensen-Shannon divergence. 
 
 
 % limitations: 1. divergence-based; 2. no clues divergence or metrics; 3. unified formulation
 Though inspiring, these attempts have three key limitations.
 First, they consider only one specific group of statistical distances, divergence. 
-In fact, many other statistical metrics, including Wasserstein metrics~\citep{arjovsky2017wasserstein,xiao2019wasserstein}, could also be employed and even make the training less vulnerable to mode collapse~\citep{che2016mode} (a major drawback of GAN) and more stable than the divergence measures. 
+In fact, many other statistical metrics, including Wasserstein metrics~\citep{arjovsky2017wasserstein,xiao2019wasserstein}, could also be employed and even make the training less vulnerable to mode collapse (a major drawback of GAN)~\citep{che2016mode} and thus more stable than the divergence measures. 
 Second, previous attempts yield very few or even contradicting clues on what the statistical distances should be used. 
 For example, reverse KL divergence (mode-seeking divergence) is claimed to perform better than forward KL divergence (mode-covering divergence) with multi-modal demonstrations~\citep{ke2019imitation} while \citet{ghasemipour2020divergence} reported no performance differences between them. 
 % As both divergence and metrics are claimed to perform well in distribution matching, 
 As a result, the selection of statistical distances for a specific imitation problem is still confusing and error-prone. 
 Third, these attempts solely focus on the discriminator design, i.e., how to construct the ``reward'' function, without trying to analyze how this discriminator, which changes over time, could potentially incur bias and variance in the alternating process. 
-Such analysis, on the other hand, could shed light on some fundamental problems in imitation learning, e.g., sample-inefficiency and training instability. 
+Such analysis, on the other hand, could shed light on some fundamental problems that arise in imitation learning, e.g., sample-inefficiency and training instability. 
 
 
 
