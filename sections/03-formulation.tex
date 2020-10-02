@@ -129,7 +129,8 @@ where $||f||_{L}\leq 1$ denotes the set of 1-Lipschitz functions.
 \min_{\pi} \underbrace{D\big(d_{\pi}(\tau), d_{\pi_*}(\tau)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big]}_{\text{Empirical form}},
 \end{equation*}
 \sw{Why the min over $\pi$ here if we are just defining divergences, not objectives?}
-where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$. \sw{vague: defined how?} \red{given examples} 
+where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$. 
+\sw{vague: defined how?}
 Note that we use trajectories $\tau$ instead of the state-action pairs $(s, a)$ as in imitation learning the trajectories are identically independent distributed (i.i.d) while the state-action pairs are not. 
 This formulation is also different from what is adopted by 
 Now we have the \textbf{unified objective function} for the distribution matching in imitation learning:

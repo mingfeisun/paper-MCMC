@@ -9,10 +9,10 @@ In order to optimize Equation~\ref{equ:general_objective}, we can iteratively so
 We now show that how this $\min$-$\max$ optimization problem resembles the actor-critic algorithms in reinforcement learning. 
 
 First, the $\sup_{f\in\mathcal{F}}$ can be directly optimized by taking the gradient of $f_{\omega}(\tau)$ and $\tilde{f}_{\omega}(\tau)$: 
-\begin{equation*}
+\begin{equation}~\label{equ:gradient_critic}
 \nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
 = \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
-\end{equation*}
+\end{equation}
 % \vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
 Second, the $\min_{\pi}$ is wrt $\pi$, which is parameterized with $\theta$ and only included in the first term:
 \begin{align*}
@@ -62,29 +62,39 @@ Combining the maximization and minimization,
 we can conclude that the maximization process is to find a ``value'' for each trajectory such that the expectation over all trajectories provided in the demonstration and induced by the policy is maximized, 
 while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``value''. 
 This optimization process is just the actor-critic mechanism in reinforcement learning~\citep{konda2000actor}.
-Specifically, $f_{\omega}(\tau)$ 
+Specifically, in actor-critic framework, the critic uses an approximation architecture to learn a value function, which is then used to update the actor's policy parameters in a direction of performance improvement. The critic is usually updated by temporal-difference learning. In our formulation, $f_{\omega}(\tau)$ behaves exactly like the critic as it estimates a ``value'' function (for trajectories), which then provides a direction of the gradient update in the minimization process. 
+The main different lies in that the critic in actor-critic algorithms is updated via temporal difference learning (which is not gradient descent of any objectives~\citep{sutton2008convergent}), 
+while the critic in our formulation is updated by maximizing an explicit objective, see Equation~\ref{equ:gradient_critic}. 
+To differentiate our critic from previous ones, we name $f(\tau)$ as \textit{gradient critic}, aligned with gradient temporal-difference (GTD) in~\citet{sutton2008convergent,sutton2009fast}. 
 
-\sw{This is really vague: how exactly is it like AC?  Your claim is that $\Psi$ is like the critic?  But you still have to learn $f$ by optimising $\omega$, no?  That seems fundamentally different from AC where the reward is given, not learned.}
+Note that this formulation is fundamentally different from existing imitation learning methods. 
+In GAIL~\citep{ho2016generative} for example, although the actor-critic framework is adopted, e.g., trust region policy optimization~\citep{schulman2015trust}, the role of the critic is to estimate, with no bias and less variance, the ``value'' given the ``reward'' estimated by the discriminator. 
+Since the ``reward'' is always changing during the alternating process, estimating the ``value'' becomes tricky as the bias and variance are ill-posed. 
+Our formulation, however, indicates that there is no need to take a detour to first estimate the ``reward'' and then the ``value''. 
+Instead, we can directly find the critic to guide the policy update. 
+
+% Note that the gradient critic can be easily converted into the classic critic
+% where $f(\tau)= x^{T} \cdot \phi$. For discounted reward, $x= (1, \gamma, \gamma^{2},..., \gamma^{H-1})$, and $\phi_i=r(s_i, a_i)$, where $\phi_i$ is the $i$-th element in $\phi$. 
+% For average reward, $x= (\underbrace{1, 1,..., 1}_{H})$, and $\phi_i=r(s_i, a_i)$. 
+% \sw{This is really vague: how exactly is it like AC?  Your claim is that $\Psi$ is like the critic?  But you still have to learn $f$ by optimising $\omega$, no?  That seems fundamentally different from AC where the reward is given, not learned.}
 
 
-This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used. \sw{I don't get what's novel about this observation.  In GAIL for example, you have a discriminator, which can be thought of as reward, which can be optimised using AC methods, giving three components (actor, critic, discriminator) that correspond to your $\pi$, $\Psi$, and $f$.}
+% This is also aligned with the existing distribution matching approaches in imitation learning, where the actor-critic algorithms as well as policy-gradient methods are widely used. \sw{I don't get what's novel about this observation.  In GAIL for example, you have a discriminator, which can be thought of as reward, which can be optimised using AC methods, giving three components (actor, critic, discriminator) that correspond to your $\pi$, $\Psi$, and $f$.}
 % \vit{A parallel between AC methods and IRL is a super nice idea!}
 
-\begin{equation*}
-\min_{\pi_{\theta}} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[\tilde{f}(\tau) \big].
-\end{equation*}
+% \begin{equation*}
+% \min_{\pi_{\theta}} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[\tilde{f}(\tau) \big].
+% \end{equation*}
 
-\begin{equation*}
-\nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
-= \nabla_{\theta} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big]
-= \mathbb{E}_{\tau\sim \pi_{\theta}}\big[ \nabla \pi_{\theta}(\tau) f_{\omega}(\tau) \big]
-\end{equation*}
-\begin{equation*}
-\nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
-= \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
-\end{equation*}
-where $f(\tau)= x^{T} \cdot \phi$. For discounted reward, $x= (1, \gamma, \gamma^{2},..., \gamma^{H-1})$, and $\phi_i=r(s_i, a_i)$, where $\phi_i$ is the $i$-th element in $\phi$. 
-For average reward, $x= (\underbrace{1, 1,..., 1}_{H})$, and $\phi_i=r(s_i, a_i)$. 
+% \begin{equation*}
+% \nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
+% = \nabla_{\theta} \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big]
+% = \mathbb{E}_{\tau\sim \pi_{\theta}}\big[ \nabla \pi_{\theta}(\tau) f_{\omega}(\tau) \big]
+% \end{equation*}
+% \begin{equation*}
+% \nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
+% = \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
+% \end{equation*}
 
 \subsection{Analysis of $f$ and $\tilde{f}$}
 Monotonicity and smoothness of $f$ and $\tilde{f}$
@@ -93,11 +103,11 @@ Monotonicity and smoothness of $f$ and $\tilde{f}$
 \subsection{Deterministic adversarial imitation}
 One of the direct outcomes of the above connection to policy gradient is a novel algorithm, which we call Deterministic Adversarial Imitation Learning. 
 Assume policy $\pi_{\theta}$ is deterministic, then based on the deterministic policy gradient, we have
-\begin{align*}
-& \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big] 
-= \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] \\ 
-= & \mathbb{E}_{s\sim d_{\pi_{\theta}}(s)} \big[  \nabla_\theta \pi_{\theta}(s, a) \cdot \nabla_a \Psi(s, a)\big|_{a=\pi_{\theta}(s)}\big], 
-\end{align*}
+% \begin{align*}
+% & \nabla_{\theta} \Big[ \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] + \mathbb{E}_{(s, a)\sim d_*} \big[ \tilde{f}_{\omega}(s, a) \big] \Big] 
+% = \nabla_{\theta} \mathbb{E}_{(s, a)\sim d_{\pi_{\theta}}} \big[ f_{\omega}(s, a) \big] \\ 
+% = & \mathbb{E}_{s\sim d_{\pi_{\theta}}(s)} \big[  \nabla_\theta \pi_{\theta}(s, a) \cdot \nabla_a \Psi(s, a)\big|_{a=\pi_{\theta}(s)}\big], 
+% \end{align*}
 
 The algorithm runs as follows:
 

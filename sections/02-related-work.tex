@@ -1,24 +1,24 @@
 \section{Related work}
 Distribution matching approaches 
 
-In recent years, the development of Adversarial Imitation Learning has been mostly focused on on-policy algorithms. 
-After~\citet{ho2016generative} proposed GAIL to perform imitation learning via adversarial training, a number of extensions has been introduced. 
-Many of these applications of the AIL framework~\citep{li2017infogail,hausman2017multi,sun2019adversarial} maintain the same form of distribution estimation as GAIL which necessitates on-policy samples. 
+% In recent years, the development of Adversarial Imitation Learning has been mostly focused on on-policy algorithms. 
+% After~\citet{ho2016generative} proposed GAIL to perform imitation learning via adversarial training, a number of extensions has been introduced. 
+% Many of these applications of the AIL framework~\citep{li2017infogail,hausman2017multi,sun2019adversarial} maintain the same form of distribution estimation as GAIL which necessitates on-policy samples. 
 
 
-The connections between RL and divergence minimization have long been studied in the rich prior literature of control as probabilistic inference~\citep{todorov2007linearly,toussaint2009robot,peters2010relative,kappen2012optimal}. 
-Specifically, they have shown that optimal control under entropy regularization can be viewed as approximate inference on a graphical model, or equivalently minimizing reverse KL divergence between reward-weighted trajectory and policy trajectory distributions~\citep{kappen2012optimal,levine2018reinforcement}.
-Building on such intuitions, a number of work extended RL algorithms based on picking another divergence metric, such as forward KL~\citep{peters2007reinforcement,norouzi2016reward}, and demonstrated substantially improved empirical performances in certain situations. 
-Our work draws significant inspirations from these prior works in RL and aims to provide a probabilistic perspective in Imitation Learning (IL).
-\vit{This is a bit confusing given the title, where you say 'deterministic'.}
-\vit{gls package will free you from manually defining abbreviations. Is this the first place you define IL?}
+% The connections between RL and divergence minimization have long been studied in the rich prior literature of control as probabilistic inference~\citep{todorov2007linearly,toussaint2009robot,peters2010relative,kappen2012optimal}. 
+% Specifically, they have shown that optimal control under entropy regularization can be viewed as approximate inference on a graphical model, or equivalently minimizing reverse KL divergence between reward-weighted trajectory and policy trajectory distributions~\citep{kappen2012optimal,levine2018reinforcement}.
+% Building on such intuitions, a number of work extended RL algorithms based on picking another divergence metric, such as forward KL~\citep{peters2007reinforcement,norouzi2016reward}, and demonstrated substantially improved empirical performances in certain situations. 
+% Our work draws significant inspirations from these prior works in RL and aims to provide a probabilistic perspective in Imitation Learning (IL).
+% \vit{This is a bit confusing given the title, where you say 'deterministic'.}
+% \vit{gls package will free you from manually defining abbreviations. Is this the first place you define IL?}
 
 
-Similarly to RL, the connections between IRL and divergence minimization have long been alluded. 
-Early works in IRL operated by matching feature expectations or moments~\citep{abbeel2004apprenticeship} between policies and experts, a popular approach in distribution matching~\citep{dziugaite2015training,li2015generative}.
-Recent scalable approaches to Max-Ent IRL~\citep{ho2016generative}, motivated by adversarial approaches to generative modeling, demonstrate additional connections to distribution matching. 
-Concurrent to our work, \citet{ke2019imitation} also present a unifying probabilistic perspective on IL; \sw{how can it be concurrent if it was published last year?}
-however, their empirical experiments solely focus on grid world domains, while our work provides comparative results on high-dimensional continuous control environments and also evaluates the effectiveness of IL algorithms for state marginal matching~\citep{lee2019efficient}.
-\vit{Is there formulation equivalent to yours?}
+% Similarly to RL, the connections between IRL and divergence minimization have long been alluded. 
+% Early works in IRL operated by matching feature expectations or moments~\citep{abbeel2004apprenticeship} between policies and experts, a popular approach in distribution matching~\citep{dziugaite2015training,li2015generative}.
+% Recent scalable approaches to Max-Ent IRL~\citep{ho2016generative}, motivated by adversarial approaches to generative modeling, demonstrate additional connections to distribution matching. 
+% Concurrent to our work, \citet{ke2019imitation} also present a unifying probabilistic perspective on IL; \sw{how can it be concurrent if it was published last year?}
+% however, their empirical experiments solely focus on grid world domains, while our work provides comparative results on high-dimensional continuous control environments and also evaluates the effectiveness of IL algorithms for state marginal matching~\citep{lee2019efficient}.
+% \vit{Is there formulation equivalent to yours?}
 
 \sw{It seems crucial to address the Ghasemipour paper here.}
