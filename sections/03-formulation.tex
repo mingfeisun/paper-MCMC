@@ -132,7 +132,7 @@ where $||f||_{L}\leq 1$ denotes the set of 1-Lipschitz functions.
 where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$. 
 \sw{vague: defined how?}
 Note that we use trajectories $\tau$ instead of the state-action pairs $(s, a)$ as in imitation learning the trajectories are identically independent distributed (i.i.d) while the state-action pairs are not. 
-This formulation is also different from what is adopted by 
+This formulation is also different from what is adopted in~\citep{ke2019imitation,ghasemipour2020divergence}. 
 Now we have the \textbf{unified objective function} for the distribution matching in imitation learning:
 \begin{equation}\label{equ:general_objective}
 \min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big].
