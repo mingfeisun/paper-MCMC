@@ -6,7 +6,7 @@ A stochastic policy $\pi\in\Pi$ is $\pi: \mathcal{S}\times\mathcal{A}\rightarrow
 Let a trajectory be a sequence of state-action pairs $\tau=\{s_0, a_0, s_1, a_1, ..., a_{T-1}, s_T\}$
 A stochastic policy $\pi$ induces a  distribution of trajectories $d_{\pi}(\tau)$ defined as follows:
 \begin{equation}\label{equ:d_pi_definition}
-d_{\pi}(\tau) = d_0(s_0)\prod_{t=1}^{T}\pi(s_{t-1}, a_{t-1})P(s_{t}|s_{t-1}, a_{t-1})
+d_{\pi}(\tau) = d_0(s_0)\prod_{t=1}^{T}\pi(s_{t-1}, a_{t-1})P(s_{t}|s_{t-1}, a_{t-1}). 
 \end{equation}
 We slightly abuse notation by also denoting the state distribution as $d_\pi(s)$: $d_{\pi}(s) =\lim_{t\rightarrow\infty}Pr(s_t=s, a_t=a|d_0, \pi)$, 
 which we assume exists and is independent of the initial state distribution $d_0$ for all policies. 
@@ -107,7 +107,7 @@ We introduce several common statistical distances. Specifically, to measure the 
     
     \item Wasserstein-1 metric:
     $W(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*}) = \inf_{\gamma\in\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})} \mathbb{E}_{(x, y)\sim\gamma}\big[ ||x-y|| \big]$, 
-    where $\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})$ denotes the set of all joint distributions $\gamma(x, y)$ whose marginals are respectively $\mathbb{P}_{\pi}$ and $\mathbb{P}_{\pi_*}$ .
+    where $\Pi(\mathbb{P}_{\pi}, \mathbb{P}_{\pi_*})$ denotes the set of all joint distributions $\gamma(x, y)$ whose marginals are respectively $\mathbb{P}_{\pi}$ and $\mathbb{P}_{\pi_*}$.
 \end{itemize}
 % \vit{Not sure how rigorous this should be, sometimes people mention, that in KL the denominator can be zero only when nominator is zero as well.}
 
@@ -126,20 +126,51 @@ where $||f||_{L}\leq 1$ denotes the set of 1-Lipschitz functions.
 
 \paragraph{Problem formulation} We generalize the idea of using empirical forms to estimate the analytical correspondence, and assume that, for any distribution distances used in the distribution matching, we can always convert the analytical form to empirical as follows:
 \begin{equation*}
-\min_{\pi} \underbrace{D\big(d_{\pi}(\tau), d_{\pi_*}(\tau)\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big]}_{\text{Empirical form}},
+\min_{\pi} \underbrace{D\big(d_{\pi}(\tau_{\pi}), d_{\pi_*}(\tau_{*})\big)}_{\text{Analytical form}} \quad \Rightarrow \quad \min_{\pi} \sup_{f\in\mathcal{F}} \underbrace{ \mathbb{E}_{\tau\sim d_{\pi}(\tau_{\pi})} \big[ f(\tau_{\pi}) \big] - \mathbb{E}_{\tau\sim d_*(\tau)} \big[f(\tau_{*}) \big]}_{\text{Empirical form}},
 \end{equation*}
 \sw{Why the min over $\pi$ here if we are just defining divergences, not objectives?}
-where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$. 
+where $f(\tau)$ is a function specific to the distribution measure $D(\cdot||\cdot)$ and $\tilde{f}(\tau)$ is defined according to $f(s, a)$.
 \sw{vague: defined how?}
 Note that we use trajectories $\tau$ instead of the state-action pairs $(s, a)$ as in imitation learning the trajectories are identically independent distributed (i.i.d) while the state-action pairs are not. 
 This formulation is also different from what is adopted in~\citep{ke2019imitation,ghasemipour2020divergence}. 
 Now we have the \textbf{unified objective function} for the distribution matching in imitation learning:
 \begin{equation}\label{equ:general_objective}
-\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] + \mathbb{E}_{\tau\sim d_*(\tau)} \big[\tilde{f}(\tau) \big].
+\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] - \mathbb{E}_{\tau\sim d_*(\tau)} \big[f(\tau) \big].
 \end{equation}
 \sw{Isn't this exactly the same as the RHS above?}
 % \vit{What is $\tilde{f}$?}
 This generalization implies that, regardless of the distribution distances we choose, ultimately we need to optimize an objective which shares the same structure as Equation~\ref{equ:general_objective}. \red{entropy regulizer}
+\begin{equation}
+\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] - \mathbb{E}_{\tau\sim d_*(\tau)} \big[f(\tau) \big].
+\end{equation}
+Maximum mean discrepancy (MMD)~\citep{gretton2007kernel}
+\begin{equation}
+\min_{\pi} \sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi_{\theta}}(\tau)} \big[ f_{\omega}(\tau) \big] - \mathbb{E}_{\tau\sim d_*(\tau)} \big[f_{\omega}(\tau) \big].
+\end{equation}
+
+Comparison to $f$-divergences: One can also use $f$-divergences to compare two distributions.
+However, the estimators of $f$-divergences (especially the Kullback-Leibler divergence) exhibit arbitrarily slow rates of convergence depending on the distributions (see~\citep{wang2005divergence,nguyen2008estimating}, and references therein for details), 
+while the proposed metric exhibits good convergence behavior.
+
+\begin{theorem}\citep{gretton2007kernel} 
+Let $\mathcal{F}$ be a unit ball in a universal Reproducing Kernel Hilbert Space (RKHS) $\mathcal{H}$, defined on the compact metric space $\mathcal{X}$, with associated kernel $k(\cdot, \cdot)$. Then $\sup_{f\in\mathcal{F}} \mathbb{E}_{\tau\sim d_{\pi}(\tau)} \big[ f(\tau) \big] - \mathbb{E}_{\tau\sim d_*(\tau)} \big[f(\tau) \big]=0$ if and only if $d_{\pi}(\tau)=d_{*}(\tau)$. 
+\end{theorem}
+
+We next express the MMD in a more easily computable form. 
+This is simplified by the fact that in an RKHS, function evaluations can be written as $f(x)=<\phi(x), f>$, where $\phi(x)=k(x, \cdot)$. 
+Denote by $\mu[p]:=\mathbb{E}_{x\sim p(x)}[\phi(x)]$ the expectation of $\phi(x)$ (assuming existing). 
+Since $\mathbb{E}_{p}[f(x)] = <\mu[p], f>$, we may rewrite 
+\begin{equation*}
+\sup_{||f||_{\mathcal{H}}\leq 1} \mathbb{E}_{\tau_{\pi}\sim d_{\pi}(\tau)} \big[ f(\tau_{\pi}) \big] - \mathbb{E}_{\tau_{*}\sim d_*(\tau)} \big[f(\tau_{*}) \big] = \sup_{||f||_{\mathcal{H}}\leq 1} <\mu[\tau_{\pi}]-\mu[\tau_{*}], f> = || \mu[\tau_{\pi}] - \mu[\tau_{*}] ||_{\mathcal{H}}. 
+\end{equation*}
+The maximum is achieved when $f \propto \mu[\tau] - \mu[\tau]$.
+We call this function as \textit{witness function}, and denote it as $f^{*}$. 
+\begin{equation}
+f(\tilde{\tau}) \propto \mu[\tau_{\pi}] - \mu [\tau_{*}] = \mathbb{E}_{\tau_{\pi}\sim d_{\pi}(\tau)}[k(\tau_{\pi}, \tilde{\tau})] - \mathbb{E}_{\tau_{*}\sim d_{*}(\tau)}[k(\tau_{*}, \tilde{\tau})].
+\end{equation}
+Note that \citet{kim2018imitation} also proposed a similar formulation for imitation learning, which they called kernel mean embedding. 
+
+kernel density estimator
 
 % The objective of imitation learning is to find a policy $\pi$ such that its performance is close to the expert's performance. 
 % \begin{align*}

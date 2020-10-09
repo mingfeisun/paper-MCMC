@@ -10,13 +10,13 @@ We now show that how this $\min$-$\max$ optimization problem resembles the actor
 
 First, the $\sup_{f\in\mathcal{F}}$ can be directly optimized by taking the gradient of $f_{\omega}(\tau)$ and $\tilde{f}_{\omega}(\tau)$: 
 \begin{equation}~\label{equ:gradient_critic}
-\nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
-= \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
+\nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] - \mathbb{E}_{\tau\sim d_*} \big[ f_{\omega}(\tau) \big] \Big]
+= \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] - \mathbb{E}_{\tau\sim d_*} \big[ \nabla_{\omega} f_{\omega}(\tau) \big].
 \end{equation}
 % \vit{I am not sure what's going on because I do not know what $\tilde{f}$ is.}
 Second, the $\min_{\pi}$ is wrt $\pi$, which is parameterized with $\theta$ and only included in the first term:
 \begin{align*}
-& \nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim d_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big] 
+& \nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] - \mathbb{E}_{\tau\sim d_*} \big[ f_{\omega}(\tau) \big] \Big] 
 = \nabla_{\theta} \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f_{\omega}(\tau) \big] \\
 = & \nabla_{\theta} \int_{\tau} d_{\pi_{\theta}}(\tau) f_{\omega}(\tau) d\tau 
 = \int_{\tau} \nabla_{\theta} d_{\pi_{\theta}}(\tau) f_{\omega}(\tau) d\tau 
@@ -58,6 +58,25 @@ Plug in the definition of $d_{\pi_{\theta}}(\tau)$ in Equation~\ref{equ:d_pi_def
 % where $\gamma\in[0, 1)$ is a discount rate ($\gamma=1$ is allowed only in episodic tasks).
 % \end{proof}
 
+
+\begin{align*}
+& \nabla_{\theta} \Big[ \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f(\tau) \big] - \mathbb{E}_{\tau\sim d_*} \big[ f(\tau) \big] \Big] 
+= \nabla_{\theta} \mathbb{E}_{\tau\sim d_{\pi_{\theta}}} \big[ f(\tau) \big] \\
+= & \nabla_{\theta} \int_{\tau} d_{\pi_{\theta}}(\tau) f(\tau) d\tau 
+= \int_{\tau} \nabla_{\theta} d_{\pi_{\theta}}(\tau) f(\tau) d\tau 
+= \int_{\tau}  d_{\pi_{\theta}}(\tau) f(\tau) \nabla_{\theta}\log d_{\pi_{\theta}}(\tau)  d\tau \\
+= & \mathbb{E}_{\tau\sim d_{\pi_\theta}} \big[ f(\tau) \cdot \nabla_{\theta}\log d_{\pi_{\theta}}(\tau) \big].
+\end{align*}
+
+\begin{equation*}
+f(\tau) = \mathbb{E}_{\tau_{*}\sim d_{*}(\tau)}[k(\tau_{*}, \tilde{\tau})] - \mathbb{E}_{\tau_{\pi}\sim d_{\pi}(\tau)}[k(\tau_{\pi}, \tilde{\tau})].
+\end{equation*}
+
+\begin{align*}
+k(\tau, \tilde{\tau}) &= k\big([(s_0, a_0), (s_1, a_1), ..., (s_{T-1}, a_{T-1})], [(s_0, a_0), (s_1, a_1), ..., (s_{T-1}, a_{T-1})]\big) \\
+&= k_{0}((s_0, a_0), (s_0, a_0)) \cdot k_{1}((s_1, a_1), (s_1, a_1)) \cdot ... \cdot k_{T-1}((s_{T-1}, a_{T-1}), (s_{T-1}, a_{T-1}))
+\end{align*}
+
 Combining the maximization and minimization,
 we can conclude that the maximization process is to find a ``value'' for each trajectory such that the expectation over all trajectories provided in the demonstration and induced by the policy is maximized, 
 while the minimization process is to find a policy that achieves optimal returns under the current estimate of the ``value''. 
@@ -67,15 +86,19 @@ The main different lies in that the critic in actor-critic algorithms is updated
 while the critic in our formulation is updated by maximizing an explicit objective, see Equation~\ref{equ:gradient_critic}. 
 To differentiate our critic from previous ones, we name $f(\tau)$ as \textit{gradient critic}, aligned with gradient temporal-difference (GTD) in~\citet{sutton2008convergent,sutton2009fast}. 
 
-Note that this formulation is fundamentally different from existing imitation learning methods. 
-In GAIL~\citep{ho2016generative} for example, although the actor-critic framework is adopted, e.g., trust region policy optimization~\citep{schulman2015trust}, the role of the critic is to estimate, with no bias and less variance, the ``value'' given the ``reward'' estimated by the discriminator. 
-Since the ``reward'' is always changing during the alternating process, estimating the ``value'' becomes tricky as the bias and variance are ill-posed. 
-Our formulation, however, indicates that there is no need to take a detour to first estimate the ``reward'' and then the ``value''. 
-Instead, we can directly find the critic to guide the policy update. 
+% Note that this formulation is fundamentally different from existing imitation learning methods. 
+% In GAIL~\citep{ho2016generative} for example, although the actor-critic framework is adopted, e.g., trust region policy optimization~\citep{schulman2015trust}, the role of the critic is to estimate, with no bias and less variance, the ``value'' given the ``reward'' estimated by the discriminator. 
+% Since the ``reward'' is always changing during the alternating process, estimating the ``value'' becomes tricky as the bias and variance are ill-posed. 
+% Our formulation, however, indicates that there is no need to take a detour to first estimate the ``reward'' and then the ``value''. 
+% Instead, we can directly find the critic to guide the policy update. 
 
-% Note that the gradient critic can be easily converted into the classic critic
-% where $f(\tau)= x^{T} \cdot \phi$. For discounted reward, $x= (1, \gamma, \gamma^{2},..., \gamma^{H-1})$, and $\phi_i=r(s_i, a_i)$, where $\phi_i$ is the $i$-th element in $\phi$. 
-% For average reward, $x= (\underbrace{1, 1,..., 1}_{H})$, and $\phi_i=r(s_i, a_i)$. 
+% Note that the new critic can be easily converted into the classic critic where 
+Define $f$ as $f(\tau)= x^{T} \cdot \phi$. 
+
+For discounted case, $x= (1, \gamma, \gamma^{2},..., \gamma^{H-1})$, $\phi_i=r(s_i, a_i)$, where $\phi_i$ is the $i$-th element in $\phi$. 
+
+For average case, $x= (\underbrace{1, 1,..., 1}_{H})$, and $\phi_i=r(s_i, a_i)$. 
+
 % \sw{This is really vague: how exactly is it like AC?  Your claim is that $\Psi$ is like the critic?  But you still have to learn $f$ by optimising $\omega$, no?  That seems fundamentally different from AC where the reward is given, not learned.}
 
 
@@ -95,9 +118,6 @@ Instead, we can directly find the critic to guide the policy update.
 % \nabla_{\omega} \Big[ \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \tilde{f}_{\omega}(\tau) \big] \Big]
 % = \mathbb{E}_{\tau\sim \pi_{\theta}} \big[ \nabla_{\omega} f_{\omega}(\tau) \big] + \mathbb{E}_{\tau\sim \pi_*} \big[ \nabla_{\omega} \tilde{f}_{\omega}(\tau) \big].
 % \end{equation*}
-
-\subsection{Analysis of $f$ and $\tilde{f}$}
-Monotonicity and smoothness of $f$ and $\tilde{f}$
 
 
 \subsection{Deterministic adversarial imitation}
